@@ -1,9 +1,9 @@
 HTTPS          = require 'https'
 {EventEmitter} = require 'events'
 
-Robot         = require '../robot'
-Adapter       = require '../adapter'
-{TextMessage} = require '../message'
+Robot         = (require 'hubot').Robot
+Adapter       = (require 'hubot').Adapter
+TextMessage   = (require 'hubot').TextMessage
 
 class Chatwork extends Adapter
   # override
