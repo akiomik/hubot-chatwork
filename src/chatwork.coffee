@@ -1,6 +1,5 @@
 HTTPS          = require 'https'
 {EventEmitter} = require 'events'
-Readline       = require 'readline'
 
 Robot         = require '../robot'
 Adapter       = require '../adapter'
@@ -9,55 +8,55 @@ Adapter       = require '../adapter'
 class Chatwork extends Adapter
   # override
   send: (envelope, strings...) ->
-    if strings.length > 0
-      string = strings.shift()
-      if typeof(string) is 'function'
-        string()
-        @send envelope, strings...
-      else
-        @bot.Room(envelope.room).Messages().create string, (err, data) =>
-          @robot.logger.error "Chatwork send error: #{err}" if err?
-          @send envelope, strings...
-    @repl.prompt()
+    for string in strings
+      @bot.Room(envelope.room).Messages().create string, (err, data) =>
+        @robot.logger.error "Chatwork send error: #{err}" if err?
 
   # override
   reply: (envelope, strings...) ->
     @send envelope, strings.map((str) ->
-      "[To:#{envelope.user.id}] #{envelope.user.name}さん #{str}")...
+      "[To:#{envelope.user.id}] #{envelope.user.name}さん\n#{str}")...
 
   # override
   run: ->
     options =
       token: process.env.HUBOT_CHATWORK_TOKEN
       rooms: process.env.HUBOT_CHATWORK_ROOMS
+      apiRate: process.env.HUBOT_CHATWORK_API_RATE
 
     bot = new ChatworkStreaming(options, @robot)
 
-    # TODO
-    # bot.listen
+    for roomId in bot.rooms
+      bot.Room(roomId).Messages().listen()
+
+    bot.on 'message', (roomId, id, account, body, sendAt, updatedAt) =>
+      user = @robot.brain.userForId account.account_id,
+        name: account.name
+        avatarImageUrl: account.avatar_image_url
+        room: roomId
+      @receive new TextMessage user, body, id
 
     @bot = bot
 
-    @emit "connected"
-
-    # FIXME
-    @repl.setPrompt "#{@robot.name}> "
-    @repl.prompt()
+    @emit 'connected'
 
 exports.use = (robot) ->
   new Chatwork robot
 
 class ChatworkStreaming extends EventEmitter
   constructor: (options, @robot) ->
-    unless options.token? and options.rooms?
+    unless options.token? and options.rooms? and options.apiRate?
       @robot.logger.error \
-        "Not enough parameters provided. I need a token and rooms"
+        "Not enough parameters provided. I need a token, rooms and API rate"
       process.exit(1)
 
-    @token         = options.token
-    @rooms         = options.rooms.split(",")
-    @host          = "api.chatwork.com"
-    @private       = {}
+    @token   = options.token
+    @rooms   = options.rooms.split(",")
+    @host    = "api.chatwork.com"
+    @rate    = parseInt options.apiRate, 10
+
+    unless apiRate > 0
+      @robot.logger.error "API rate must be greater then 0"
 
   Me: (callback) =>
     @get "/me", "", callback
@@ -134,6 +133,22 @@ class ChatworkStreaming extends EventEmitter
         body = "body=#{text}"
         @post "/rooms/#{id}/messages", body, callback
 
+      listen: =>
+        lastMessage = 0
+        setInterval =>
+          @show (err, message) =>
+            for message in messages
+              if lastMessage < message.message_id
+                @emit 'message',
+                  id,
+                  message.message_id,
+                  message.account,
+                  message.body,
+                  message.send_time,
+                  message.update_time
+                lastMessage = message.message_id
+        , 1000 / (@rate / (60 * 60))
+
     Message: (mid) =>
       show: (callback) =>
         @get "/rooms/#{id}/messages/#{mid}", "", callback
@@ -172,9 +187,6 @@ class ChatworkStreaming extends EventEmitter
       show: (options, callback) =>
         body = "create_download_url=#{options.createUrl}"
         @get "/rooms/#{id}/files/#{fid}", body, callback
-
-    # TODO
-    listen: =>
 
   get: (path, body, callback) ->
     @request "GET", path, body, callback
