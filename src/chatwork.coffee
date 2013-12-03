@@ -137,7 +137,7 @@ class ChatworkStreaming extends EventEmitter
       listen: =>
         lastMessage = 0
         setInterval =>
-          @show (err, message) =>
+          @Room(id).Message().show (err, message) =>
             for message in messages
               if lastMessage < message.message_id
                 @emit 'message',
