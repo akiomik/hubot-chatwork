@@ -18,6 +18,42 @@ class RobotMock
 
 robot = new RobotMock
 
+describe 'chatwork', ->
+  chatwork = null
+  api = null
+
+  before ->
+    api = (nock 'https://api.chatwork.com')
+       .matchHeader('X-ChatWorkToken', token)
+
+    chatwork = Chatwork.use robot
+    chatwork.run()
+
+  afterEach ->
+    nock.cleanAll()
+
+  it 'should be able to send message', (done) ->
+    api.post("/v1/rooms/#{roomId}/messages")
+      .reply 200, (uri, body) ->
+        done()
+
+    envelope = room: roomId
+    message = "This is a test message"
+    chatwork.send envelope, message
+
+  it 'should be able to reply message', (done) ->
+    api.post("/v1/rooms/#{roomId}/messages")
+      .reply 200, (uri, body) ->
+        done()
+
+    envelope =
+      room: roomId
+      user:
+        id: 123
+        name: "Bob"
+    message = "This is a test message"
+    chatwork.reply envelope, message
+
 describe 'chatwork streaming', ->
   bot = null
   getApi = null
