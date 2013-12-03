@@ -18,14 +18,13 @@ class RobotMock
 
 robot = new RobotMock
 
+api = (nock 'https://api.chatwork.com')
+  .matchHeader 'X-ChatWorkToken', token
+
 describe 'chatwork', ->
   chatwork = null
-  api = null
 
   before ->
-    api = (nock 'https://api.chatwork.com')
-       .matchHeader('X-ChatWorkToken', token)
-
     chatwork = Chatwork.use robot
     chatwork.run()
 
@@ -56,36 +55,14 @@ describe 'chatwork', ->
 
 describe 'chatwork streaming', ->
   bot = null
-  getApi = null
-  postApi = null
-  messages =
-    [
-      message_id: 5
-      account:
-        account_id: 123
-        name: "Bob"
-        avatar_image_url: "https://example.com/ico_avatar.png"
-      body: "Hello Chatwork!"
-      send_time: 1384242850
-      update_time: 0
-    ]
 
   beforeEach ->
-    getApi =
-      (nock 'https://api.chatwork.com')
-        .matchHeader('X-ChatWorkToken', token)
-        .get("/v1/rooms/#{roomId}/messages")
-        .reply(200, messages)
-
-    postApi =
-      (nock 'https://api.chatwork.com')
-        .matchHeader('X-ChatWorkToken', token)
-        .post("/v1/rooms/#{roomId}/messages")
-        .reply(200, message_id: 123)
-
     chatwork = Chatwork.use robot
     chatwork.run()
     bot = chatwork.bot
+
+  afterEach ->
+    nock.cleanAll()
 
   it 'should have configs from environment variables', ->
     bot.token.should.equal token
@@ -96,11 +73,29 @@ describe 'chatwork streaming', ->
     bot.should.have.property 'host'
 
   it 'should be able to get messages', (done) ->
+    messages =
+      [
+        message_id: 5
+        account:
+          account_id: 123
+          name: "Bob"
+          avatar_image_url: "https://example.com/ico_avatar.png"
+        body: "Hello Chatwork!"
+        send_time: 1384242850
+        update_time: 0
+      ]
+
+    api.get("/v1/rooms/#{roomId}/messages")
+      .reply(200, messages)
+
     bot.Room(roomId).Messages().show (err, data) ->
       data.should.deep.equal messages
       done()
 
   it 'should be able to create a message', (done) ->
+    api.post("/v1/rooms/#{roomId}/messages")
+      .reply(200, message_id: 123)
+
     message = 'This is a test message'
     bot.Room(roomId).Messages().create message, (err, data) ->
       data.should.have.property 'message_id'
