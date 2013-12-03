@@ -24,8 +24,10 @@
   },
   "license": "MIT",
   "readmeFilename": "README.md",
+  "dependencies": {
+    "hubot": ">=2.3.0"
+  },
   "devDependencies": {
-    "hubot": "*",
     "coffee-script": "1.6.3",
     "chai": "*",
     "mocha": "*",
