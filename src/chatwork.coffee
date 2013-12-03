@@ -55,7 +55,7 @@ class ChatworkStreaming extends EventEmitter
     @host = 'api.chatwork.com'
     @rate = parseInt options.apiRate, 10
 
-    unless options.apiRate > 0
+    unless @rate > 0
       @robot.logger.error 'API rate must be greater then 0'
       process.exit 1
 
