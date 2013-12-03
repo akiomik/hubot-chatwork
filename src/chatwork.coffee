@@ -47,16 +47,17 @@ class ChatworkStreaming extends EventEmitter
   constructor: (options, @robot) ->
     unless options.token? and options.rooms? and options.apiRate?
       @robot.logger.error \
-        "Not enough parameters provided. I need a token, rooms and API rate"
-      process.exit(1)
+        'Not enough parameters provided. I need a token, rooms and API rate'
+      process.exit 1
 
-    @token   = options.token
-    @rooms   = options.rooms.split(",")
-    @host    = "api.chatwork.com"
-    @rate    = parseInt options.apiRate, 10
+    @token = options.token
+    @rooms = options.rooms.split ','
+    @host = 'api.chatwork.com'
+    @rate = parseInt options.apiRate, 10
 
-    unless apiRate > 0
-      @robot.logger.error "API rate must be greater then 0"
+    unless options.apiRate > 0
+      @robot.logger.error 'API rate must be greater then 0'
+      process.exit 1
 
   Me: (callback) =>
     @get "/me", "", callback
