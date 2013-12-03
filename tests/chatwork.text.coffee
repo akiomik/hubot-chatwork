@@ -20,7 +20,8 @@ robot = new RobotMock
 
 describe 'chatwork streaming', ->
   bot = null
-  api = null
+  getApi = null
+  postApi = null
   messages =
     [
       message_id: 5
@@ -34,11 +35,15 @@ describe 'chatwork streaming', ->
     ]
 
   before ->
-    api =
+    getApi =
       (nock 'https://api.chatwork.com')
         .matchHeader('X-ChatWorkToken', token)
         .get("/v1/rooms/#{roomId}/messages")
         .reply(200, messages)
+
+    postApi =
+      (nock 'https://api.chatwork.com')
+        .matchHeader('X-ChatWorkToken', token)
         .post("/v1/rooms/#{roomId}/messages")
         .reply(200, message_id: 123)
 
@@ -46,24 +51,22 @@ describe 'chatwork streaming', ->
     chatwork.run()
     bot = chatwork.bot
 
-  it 'should equal token', ->
+  it 'should have configs from environment variables', ->
     bot.token.should.equal token
-
-  it 'should equal roomId', ->
     bot.rooms.should.deep.equal [roomId]
+    bot.rate.should.equal parseInt apiRate, 10
 
   it 'should have host', ->
     bot.should.have.property 'host'
 
-  it 'should equal API rate', ->
-    bot.rate.should.equal parseInt apiRate, 10
-
   it 'should be able to get messages', ->
     bot.Room(roomId).Messages().show (err, data) ->
       data.should.deep.equal messages
+      getApi.isDone().should.be.true
 
   it 'should be able to create a message', ->
     message = 'This is a test message'
     bot.Room(roomId).Messages().create message, (err, data) ->
       data.should.have.property 'message_id'
+      postApi.isDone().should.be.true
 
