@@ -236,10 +236,8 @@ class ChatworkStreaming extends EventEmitter
               logger.error "Chatwork HTTPS response data: #{data}"
 
         if callback
-          try
-            callback null, JSON.parse(data)
-          catch error
-            callback null, data or { }
+          json = try JSON.parse data catch e then data or {}
+          callback null, json
 
       response.on "error", (err) ->
         logger.error "Chatwork HTTPS response error: #{err}"
