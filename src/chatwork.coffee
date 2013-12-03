@@ -206,7 +206,6 @@ class ChatworkStreaming extends EventEmitter
 
     headers =
       "Host"           : @host
-      "Content-Type"   : "application/json"
       "X-ChatWorkToken": @token
 
     options =
