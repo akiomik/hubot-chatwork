@@ -34,7 +34,7 @@ describe 'chatwork streaming', ->
       update_time: 0
     ]
 
-  before ->
+  beforeEach ->
     getApi =
       (nock 'https://api.chatwork.com')
         .matchHeader('X-ChatWorkToken', token)
@@ -59,14 +59,14 @@ describe 'chatwork streaming', ->
   it 'should have host', ->
     bot.should.have.property 'host'
 
-  it 'should be able to get messages', ->
+  it 'should be able to get messages', (done) ->
     bot.Room(roomId).Messages().show (err, data) ->
       data.should.deep.equal messages
-      getApi.isDone().should.be.true
+      done()
 
-  it 'should be able to create a message', ->
+  it 'should be able to create a message', (done) ->
     message = 'This is a test message'
     bot.Room(roomId).Messages().create message, (err, data) ->
       data.should.have.property 'message_id'
-      postApi.isDone().should.be.true
+      done()
 
