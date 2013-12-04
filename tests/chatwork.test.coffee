@@ -181,6 +181,61 @@ describe 'chatwork streaming', ->
         data.should.deep.equal contacts
         done()
 
+  describe 'Rooms', ->
+    rooms = [
+      room_id: 123
+      name: "Group Chat Name"
+      type: "group"
+      role: "admin"
+      sticky: false
+      unread_num: 10
+      mention_num: 1
+      mytask_num: 0
+      message_num: 122
+      file_num: 10
+      task_num: 17
+      icon_path: "https://example.com/ico_group.png"
+      last_update_time: 1298905200
+    ]
+
+    beforeEach ->
+      nock.cleanAll()
+
+    it 'should be able to show rooms', (done) ->
+      api.get('/v1/rooms').reply 200, rooms
+      bot.Rooms().show (err, data) ->
+        data.should.deep.equal rooms
+        done()
+
+    it 'should be able to create rooms', (done) ->
+      res = roomId: 1234
+      name = 'Website renewal project'
+      adminIds = [123, 542, 1001]
+      opts =
+        desc: 'group chat description'
+        icon: 'meeting'
+        memberIds: [21, 344]
+        roIds: [15, 103]
+      api.post('/v1/rooms').reply 200, (url, body) ->
+        params = body.split '&'
+        p0 = params[0].split '='
+        p1 = params[1].split '='
+        p2 = params[2].split '='
+        p3 = params[3].split '='
+        p4 = params[4].split '='
+        p5 = params[5].split '='
+        p0[1].should.be.equal opts.desc
+        p1[1].should.be.equal opts.icon
+        p2[1].should.be.equal adminIds.join ','
+        p3[1].should.be.equal opts.memberIds.join ','
+        p4[1].should.be.equal opts.roIds.join ','
+        p5[1].should.be.equal name
+        res
+
+      bot.Rooms().create name, adminIds, opts, (err, data) ->
+        data.should.deep.equal res
+        done()
+
   describe 'Messages', ->
     messages =
       [

@@ -81,14 +81,12 @@ class ChatworkStreaming extends EventEmitter
 
     # TODO: support optional params
     create: (name, adminIds, options, callback) =>
-      body = """
-         description=#{options.desc}
-        &icon_preset=#{options.icon}
-        &members_admin_ids=#{adminIds.join ','}
-        &members_member_ids=#{options.memberIds.join ','}
-        &members_readonly_ids=#{options.roIds.join ','}
-        &name=#{name}
-      """
+      body = "description=#{options.desc}" \
+        + "&icon_preset=#{options.icon}" \
+        + "&members_admin_ids=#{adminIds.join ','}" \
+        + "&members_member_ids=#{options.memberIds.join ','}" \
+        + "&members_readonly_ids=#{options.roIds.join ','}" \
+        + "&name=#{name}"
       @post "/rooms", body, callback
 
   Room: (id) =>
