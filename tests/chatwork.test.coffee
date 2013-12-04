@@ -4,7 +4,10 @@ Chatwork = require '../src/chatwork'
 
 token = 'deadbeef'
 roomId = '10'
-apiRate = '1'
+apiRate = '3600'
+process.env.HUBOT_CHATWORK_TOKEN = token
+process.env.HUBOT_CHATWORK_ROOMS = roomId
+process.env.HUBOT_CHATWORK_API_RATE = apiRate
 
 class LoggerMock
   error: (message) -> new Error message
@@ -22,12 +25,7 @@ describe 'chatwork', ->
   chatwork = null
 
   beforeEach ->
-    process.env.HUBOT_CHATWORK_TOKEN = token
-    process.env.HUBOT_CHATWORK_ROOMS = roomId
-    process.env.HUBOT_CHATWORK_API_RATE = apiRate
     chatwork = Chatwork.use robot
-
-  afterEach ->
     nock.cleanAll()
 
   it 'should be able to run', (done) ->
@@ -35,7 +33,6 @@ describe 'chatwork', ->
       .reply 200, (uri, body) ->
         done()
 
-    process.env.HUBOT_CHATWORK_API_RATE = 3600
     chatwork.run()
 
   it 'should be able to send message', (done) ->
@@ -66,16 +63,9 @@ describe 'chatwork streaming', ->
   bot = null
 
   beforeEach ->
-    process.env.HUBOT_CHATWORK_TOKEN = token
-    process.env.HUBOT_CHATWORK_ROOMS = roomId
-    process.env.HUBOT_CHATWORK_API_RATE = apiRate
-
     chatwork = Chatwork.use robot
     chatwork.run()
     bot = chatwork.bot
-
-  afterEach ->
-    nock.cleanAll()
 
   it 'should have configs from environment variables', ->
     bot.token.should.equal token
@@ -85,7 +75,7 @@ describe 'chatwork streaming', ->
   it 'should have host', ->
     bot.should.have.property 'host'
 
-  it 'should be able to get messages', (done) ->
+  describe 'Messages', ->
     messages =
       [
         message_id: 5
@@ -98,19 +88,30 @@ describe 'chatwork streaming', ->
         update_time: 0
       ]
 
-    api.get("/v1/rooms/#{roomId}/messages")
-      .reply(200, messages)
+    beforeEach ->
+      nock.cleanAll()
 
-    bot.Room(roomId).Messages().show (err, data) ->
-      data.should.deep.equal messages
-      done()
+    it 'should be able to get messages', (done) ->
+      api.get("/v1/rooms/#{roomId}/messages")
+        .reply(200, messages)
 
-  it 'should be able to create a message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages")
-      .reply(200, message_id: 123)
+      bot.Room(roomId).Messages().show (err, data) ->
+        data.should.deep.equal messages
+        done()
 
-    message = 'This is a test message'
-    bot.Room(roomId).Messages().create message, (err, data) ->
-      data.should.have.property 'message_id'
-      done()
+    it 'should be able to create a message', (done) ->
+      api.post("/v1/rooms/#{roomId}/messages")
+        .reply(200, message_id: 123)
+
+      message = 'This is a test message'
+      bot.Room(roomId).Messages().create message, (err, data) ->
+        data.should.have.property 'message_id'
+        done()
+
+    it 'should be able to listen messages', (done) ->
+      api.get("/v1/rooms/#{roomId}/messages")
+        .reply 200, (url, body) ->
+          done()
+
+      bot.Room(roomId).Messages().listen()
 
