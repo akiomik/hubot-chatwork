@@ -18,8 +18,7 @@ class RobotMock
 
 robot = new RobotMock
 
-api = (nock 'https://api.chatwork.com')
-  .matchHeader 'X-ChatWorkToken', token
+api = (nock 'https://api.chatwork.com').matchHeader 'X-ChatWorkToken', token
 
 describe 'chatwork', ->
   chatwork = null
@@ -29,16 +28,11 @@ describe 'chatwork', ->
     nock.cleanAll()
 
   it 'should be able to run', (done) ->
-    api.get("/v1/rooms/#{roomId}/messages")
-      .reply 200, (uri, body) ->
-        done()
-
+    api.get("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
     chatwork.run()
 
   it 'should be able to send message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages")
-      .reply 200, (uri, body) ->
-        done()
+    api.post("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
 
     envelope = room: roomId
     message = "This is a test message"
@@ -46,9 +40,7 @@ describe 'chatwork', ->
     chatwork.send envelope, message
 
   it 'should be able to reply message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages")
-      .reply 200, (uri, body) ->
-        done()
+    api.post("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
 
     envelope =
       room: roomId
@@ -253,16 +245,14 @@ describe 'chatwork streaming', ->
       nock.cleanAll()
 
     it 'should be able to get messages', (done) ->
-      api.get("/v1/rooms/#{roomId}/messages")
-        .reply(200, messages)
-
+      api.get("/v1/rooms/#{roomId}/messages").reply 200, messages
       bot.Room(roomId).Messages().show (err, data) ->
         data.should.deep.equal messages
         done()
 
     it 'should be able to create a message', (done) ->
-      api.post("/v1/rooms/#{roomId}/messages")
-        .reply(200, message_id: 123)
+      res = message_id: 123
+      api.post("/v1/rooms/#{roomId}/messages").reply 200, res
 
       message = 'This is a test message'
       bot.Room(roomId).Messages().create message, (err, data) ->
@@ -270,9 +260,6 @@ describe 'chatwork streaming', ->
         done()
 
     it 'should be able to listen messages', (done) ->
-      api.get("/v1/rooms/#{roomId}/messages")
-        .reply 200, (url, body) ->
-          done()
-
+      api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
       bot.Room(roomId).Messages().listen()
 
