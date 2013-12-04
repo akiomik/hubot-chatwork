@@ -75,6 +75,36 @@ describe 'chatwork streaming', ->
   it 'should have host', ->
     bot.should.have.property 'host'
 
+  describe 'Me', ->
+    beforeEach ->
+      nock.cleanAll()
+
+    info =
+      account_id: 123
+      room_id: 322
+      name: 'John Smith'
+      chatwork_id: 'tarochatworkid'
+      organization_id: 101
+      organization_name: 'Hello Company'
+      department: 'Marketing'
+      title: 'CMO'
+      url: 'http://mycompany.com'
+      introduction: 'Self Introduction'
+      mail: 'taro@example.com'
+      tel_organization: 'XXX-XXXX-XXXX'
+      tel_extension: 'YYY-YYYY-YYYY'
+      tel_mobile: 'ZZZ-ZZZZ-ZZZZ'
+      skype: 'myskype_id'
+      facebook: 'myfacebook_id'
+      twitter: 'mytwitter_id'
+      avatar_image_url: 'https://example.com/abc.png'
+
+    it 'should be able to get own informations', (done) ->
+      api.get('/v1/me').reply 200, info
+      bot.Me (err, data) ->
+        data.should.deep.equal info
+        done()
+
   describe 'Messages', ->
     messages =
       [
