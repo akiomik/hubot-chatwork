@@ -66,11 +66,10 @@ class ChatworkStreaming extends EventEmitter
     status: (callback) =>
       @get "/my/status", "", callback
 
+    # TODO: support optional params
     tasks: (options, callback) =>
-      body = """
-         assigned_by_account_id=#{options.assignedBy}
-        &status=#{options.status}
-      """
+      body = "assigned_by_account_id=#{options.assignedBy}" \
+        + "&status=#{options.status}"
       @get "/my/tasks", body, callback
 
   Contacts: (callback) =>
@@ -242,10 +241,7 @@ class ChatworkStreaming extends EventEmitter
         logger.error "Chatwork HTTPS response error: #{err}"
         callback err, { }
 
-    if method is "POST" || method is "PUT"
-      request.end(body, 'binary')
-    else
-      request.end()
+    request.end(body, 'binary')
 
     request.on "error", (err) ->
       logger.error "Chatwork request error: #{err}"

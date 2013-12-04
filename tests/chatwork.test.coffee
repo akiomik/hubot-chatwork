@@ -105,6 +105,61 @@ describe 'chatwork streaming', ->
         data.should.deep.equal info
         done()
 
+  describe 'My', ->
+    beforeEach ->
+      nock.cleanAll()
+
+    it 'should be able to get my status', (done) ->
+      status =
+        unread_room_num: 2
+        mention_room_num: 1
+        mytask_room_num: 3
+        unread_num: 12
+        mention_num: 1
+        mytask_num: 8
+
+      api.get('/v1/my/status').reply 200, status
+      bot.My().status (err, data) ->
+        data.should.deep.equal status
+        done()
+
+    it 'should be able to get my tasks', (done) ->
+      tasks = [
+        task_id: 3
+        room:
+          room_id: 5
+          name: "Group Chat Name"
+          icon_path: "https://example.com/ico_group.png"
+        assigned_by_account:
+          account_id: 456
+          name: "Anna"
+          avatar_image_url: "https://example.com/def.png"
+        message_id: 13
+        body: "buy milk"
+        limit_time: 1384354799
+        status: "open"
+      ]
+
+      opts =
+        assignedBy: '78'
+        status: 'done'
+
+      api.get('/v1/my/tasks').reply 200, (url, body) ->
+        params = body.split '&'
+        p0 = params[0].split '='
+        p1 = params[1].split '='
+        if p0[0] is 'status'
+          p0[1].should.be.equal opts.status
+          p1[1].should.be.equal opts.assignedBy
+        else
+          p0[1].should.be.equal opts.assignedBy
+          p1[1].should.be.equal opts.status
+        tasks
+
+      bot.My().tasks opts, (err, data) ->
+        data.should.be.deep.equal tasks
+        done()
+
   describe 'Messages', ->
     messages =
       [
