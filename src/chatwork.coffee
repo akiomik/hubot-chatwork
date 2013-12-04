@@ -128,7 +128,9 @@ class ChatworkStreaming extends EventEmitter
 
     Messages: =>
       show: (callback) =>
-        @get "/rooms/#{id}/messages", "", callback
+        # FIXME
+        # @get "/rooms/#{id}/messages", "", callback
+        @robot.logger.debug 'Messages API is not implemented yet. Skipping...'
 
       create: (text, callback) =>
         body = "body=#{text}"
