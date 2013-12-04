@@ -4,6 +4,7 @@ hubot-chatwork
 A Hubot adapter for chatwork.
 
 [![Build Status](https://travis-ci.org/akiomik/hubot-chatwork.png?branch=master)](https://travis-ci.org/akiomik/hubot-chatwork)
+[![NPM version](https://badge.fury.io/js/hubot-chatwork.png)](http://badge.fury.io/js/hubot-chatwork)
 
 ## Installation
 
