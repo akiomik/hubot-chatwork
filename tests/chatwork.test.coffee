@@ -160,6 +160,27 @@ describe 'chatwork streaming', ->
         data.should.be.deep.equal tasks
         done()
 
+  describe 'Contacts', ->
+    beforeEach ->
+      nock.cleanAll()
+
+    contacts = [
+      account_id: 123
+      room_id: 322
+      name: "John Smith"
+      chatwork_id: "tarochatworkid"
+      organization_id: 101
+      organization_name: "Hello Company"
+      department: "Marketing"
+      avatar_image_url: "https://example.com/abc.png"
+    ]
+
+    it 'should be able to get contacts', (done) ->
+      api.get('/v1/contacts').reply 200, contacts
+      bot.Contacts (err, data) ->
+        data.should.deep.equal contacts
+        done()
+
   describe 'Messages', ->
     messages =
       [
