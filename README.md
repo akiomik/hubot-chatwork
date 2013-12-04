@@ -23,7 +23,7 @@ npm install
 3. Set environment variables.
 ```sh
 export HUBOT_CHATWORK_TOKEN="DEADBEEF" # see http://developer.chatwork.com/ja/authenticate.html
-export HUBOT_CHATWORK_ROOM="123,456"   # comma separated
+export HUBOT_CHATWORK_ROOMS="123,456"   # comma separated
 export HUBOT_CHATWORK_API_RATE="350"   # request per hour
 ```
 
