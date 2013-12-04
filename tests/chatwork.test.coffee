@@ -5,9 +5,6 @@ Chatwork = require '../src/chatwork'
 token = 'deadbeef'
 roomId = '10'
 apiRate = '1'
-process.env.HUBOT_CHATWORK_TOKEN = token
-process.env.HUBOT_CHATWORK_ROOMS = roomId
-process.env.HUBOT_CHATWORK_API_RATE = apiRate
 
 class LoggerMock
   error: (message) -> new Error message
@@ -24,12 +21,22 @@ api = (nock 'https://api.chatwork.com')
 describe 'chatwork', ->
   chatwork = null
 
-  before ->
+  beforeEach ->
+    process.env.HUBOT_CHATWORK_TOKEN = token
+    process.env.HUBOT_CHATWORK_ROOMS = roomId
+    process.env.HUBOT_CHATWORK_API_RATE = apiRate
     chatwork = Chatwork.use robot
-    chatwork.run()
 
   afterEach ->
     nock.cleanAll()
+
+  it 'should be able to run', (done) ->
+    api.get("/v1/rooms/#{roomId}/messages")
+      .reply 200, (uri, body) ->
+        done()
+
+    process.env.HUBOT_CHATWORK_API_RATE = 3600
+    chatwork.run()
 
   it 'should be able to send message', (done) ->
     api.post("/v1/rooms/#{roomId}/messages")
@@ -38,6 +45,7 @@ describe 'chatwork', ->
 
     envelope = room: roomId
     message = "This is a test message"
+    chatwork.run()
     chatwork.send envelope, message
 
   it 'should be able to reply message', (done) ->
@@ -51,12 +59,17 @@ describe 'chatwork', ->
         id: 123
         name: "Bob"
     message = "This is a test message"
+    chatwork.run()
     chatwork.reply envelope, message
 
 describe 'chatwork streaming', ->
   bot = null
 
   beforeEach ->
+    process.env.HUBOT_CHATWORK_TOKEN = token
+    process.env.HUBOT_CHATWORK_ROOMS = roomId
+    process.env.HUBOT_CHATWORK_API_RATE = apiRate
+
     chatwork = Chatwork.use robot
     chatwork.run()
     bot = chatwork.bot
