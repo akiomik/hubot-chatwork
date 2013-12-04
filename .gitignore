@@ -16,3 +16,6 @@ node_modules
 
 # for editors
 *.swp
+
+# for coverage
+coverage.html

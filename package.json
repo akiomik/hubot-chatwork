@@ -4,7 +4,11 @@
   "description": "A hubot adapter for chatwork",
   "main": "src/chatwork",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "blanket": {
+      "pattern": "hubot-chatwork/src",
+      "loader": "./node-loaders/coffee-script"
+    }
   },
   "repository": {
     "type": "git",
@@ -31,6 +35,9 @@
     "coffee-script": "1.6.3",
     "chai": "*",
     "mocha": "*",
-    "nock": "0.23.0"
+    "nock": "0.23.0",
+    "blanket": "*",
+    "mocha-lcov-reporter": "0.0.1",
+    "coveralls": "~2.5.0"
   }
 }

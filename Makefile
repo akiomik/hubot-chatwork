@@ -1,3 +1,9 @@
 .PHONY: test
 test:
-	mocha --compilers coffee:coffee-script tests
+	mocha test
+
+test-coverage:
+	mocha -R html-cov test > coverage.html
+
+test-coveralls:
+	mocha test --reporter mocha-lcov-reporter | coveralls
