@@ -378,6 +378,9 @@ describe 'chatwork streaming', ->
         room.Messages().listen()
 
     describe 'Message', ->
+      beforeEach ->
+        nock.cleanAll()
+
       it 'should be able to show a message', (done) ->
         messageId = 5
         res =
@@ -392,6 +395,49 @@ describe 'chatwork streaming', ->
 
         api.get("/v1/rooms/#{roomId}/messages/#{messageId}").reply 200, res
         room.Message(messageId).show (err, data) ->
+          data.should.deep.equal res
+          done()
+
+    describe 'Tasks', ->
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to show tasks', (done) ->
+        opts =
+          account: '101'
+          assignedBy: '78'
+          status: "done"
+        res = [
+          task_id: 3
+          room:
+            room_id: 5
+            name: "Group Chat Name"
+            icon_path: "https://example.com/ico_group.png"
+          account:
+            account_id: 123
+            name: "Bob"
+            avatar_image_url: "https://example.com/abc.png"
+          assigned_by_account:
+            account_id: 456
+            name: "Anna"
+            avatar_image_url: "https://example.com/def.png"
+          message_id: 13
+          body: "buy milk"
+          limit_time: 1384354799
+          status: "open"
+        ]
+
+        api.get("/v1/rooms/#{roomId}/tasks").reply 200, (url, body) ->
+          params = body.split '&'
+          p0 = params[0].split '='
+          p1 = params[1].split '='
+          p2 = params[2].split '='
+          p0[1].should.equal opts.account
+          p1[1].should.equal opts.assignedBy
+          p2[1].should.equal opts.status
+          res
+
+        room.Tasks().show opts, (err, data) ->
           data.should.deep.equal res
           done()
 

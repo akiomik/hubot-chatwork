@@ -150,11 +150,9 @@ class ChatworkStreaming extends EventEmitter
     Tasks: =>
       # TODO: support optional params
       show: (options, callback) =>
-        body = """
-           account_id=#{options.account}
-          &assigned_by_account_id=#{options.assignedBy}
-          &status=#{options.status}
-        """
+        body = "account_id=#{options.account}" \
+          + "&assigned_by_account_id=#{options.assignedBy}" \
+          + "&status=#{options.status}"
         @get "/rooms/#{id}/tasks", body, callback
 
       # TODO: support optional params
