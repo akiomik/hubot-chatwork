@@ -229,11 +229,16 @@ describe 'chatwork streaming', ->
         done()
 
   describe 'Room', ->
+    room = null
+
+    before ->
+      room = bot.Room(roomId)
+
     beforeEach ->
       nock.cleanAll()
 
     it 'should be able to show a room', (done) ->
-      room =
+      res =
         room_id: 123
         name: "Group Chat Name"
         type: "group"
@@ -249,9 +254,9 @@ describe 'chatwork streaming', ->
         last_update_time: 1298905200
         description: "room description text"
 
-      api.get("/v1/rooms/#{roomId}").reply 200, room
-      bot.Room(roomId).show (err, data) ->
-        data.should.deep.equal room
+      api.get("/v1/rooms/#{roomId}").reply 200, res
+      room.show (err, data) ->
+        data.should.deep.equal res
         done()
 
     it 'should be able to update a room', (done) ->
@@ -270,7 +275,7 @@ describe 'chatwork streaming', ->
         p2[1].should.equal opts.name
         res
 
-      bot.Room(roomId).update opts, (err, data) ->
+      room.update opts, (err, data) ->
         data.should.deep.equal res
         done()
 
@@ -280,7 +285,7 @@ describe 'chatwork streaming', ->
         body.should.equal "action_type=leave"
         res
 
-      bot.Room(roomId).leave (err, data) ->
+      room.leave (err, data) ->
         data.should.deep.equal res
         done()
 
@@ -290,7 +295,7 @@ describe 'chatwork streaming', ->
         body.should.equal "action_type=delete"
         res
 
-      bot.Room(roomId).delete (err, data) ->
+      room.delete (err, data) ->
         data.should.deep.equal res
         done()
 
@@ -299,7 +304,7 @@ describe 'chatwork streaming', ->
         nock.cleanAll()
 
       it 'should be able to show members', (done) ->
-        members = [
+        res = [
           account_id: 123
           role: "member"
           name: "John Smith"
@@ -309,9 +314,9 @@ describe 'chatwork streaming', ->
           department: "Marketing"
           avatar_image_url: "https://example.com/abc.png"
         ]
-        api.get("/v1/rooms/#{roomId}/members").reply 200, members
-        bot.Room(roomId).Members().show (err, data) ->
-          data.should.deep.equal members
+        api.get("/v1/rooms/#{roomId}/members").reply 200, res
+        room.Members().show (err, data) ->
+          data.should.deep.equal res
           done()
 
       it 'should be able to update members', (done) ->
@@ -334,13 +339,16 @@ describe 'chatwork streaming', ->
           p2[1].should.equal opts.roIds.join ','
           res
 
-        bot.Room(roomId).Members().update adminIds, opts, (err, data) ->
+        room.Members().update adminIds, opts, (err, data) ->
           data.should.deep.equal res
           done()
 
     describe 'Messages', ->
-      messages =
-        [
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to get messages', (done) ->
+        res = [
           message_id: 5
           account:
             account_id: 123
@@ -351,13 +359,9 @@ describe 'chatwork streaming', ->
           update_time: 0
         ]
 
-      beforeEach ->
-        nock.cleanAll()
-
-      it 'should be able to get messages', (done) ->
-        api.get("/v1/rooms/#{roomId}/messages").reply 200, messages
-        bot.Room(roomId).Messages().show (err, data) ->
-          data.should.deep.equal messages
+        api.get("/v1/rooms/#{roomId}/messages").reply 200, res
+        room.Messages().show (err, data) ->
+          data.should.deep.equal res
           done()
 
       it 'should be able to create a message', (done) ->
@@ -365,18 +369,18 @@ describe 'chatwork streaming', ->
         api.post("/v1/rooms/#{roomId}/messages").reply 200, res
 
         message = 'This is a test message'
-        bot.Room(roomId).Messages().create message, (err, data) ->
+        room.Messages().create message, (err, data) ->
           data.should.have.property 'message_id'
           done()
 
       it 'should be able to listen messages', (done) ->
         api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
-        bot.Room(roomId).Messages().listen()
+        room.Messages().listen()
 
     describe 'Message', ->
       it 'should be able to show a message', (done) ->
         messageId = 5
-        message =
+        res =
           message_id: 5
           account:
             account_id: 123
@@ -386,8 +390,8 @@ describe 'chatwork streaming', ->
           send_time: 1384242850
           update_time: 0
 
-        api.get("/v1/rooms/#{roomId}/messages/#{messageId}").reply 200, message
-        bot.Room(roomId).Message(messageId).show (err, data) ->
-          data.should.deep.equal message
+        api.get("/v1/rooms/#{roomId}/messages/#{messageId}").reply 200, res
+        room.Message(messageId).show (err, data) ->
+          data.should.deep.equal res
           done()
 
