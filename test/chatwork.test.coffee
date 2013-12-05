@@ -517,3 +517,30 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
+    describe 'File', ->
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to show a file', (done) ->
+        fileId = 3
+        opts =
+          createUrl: true
+        res =
+          file_id: 3
+          account:
+            account_id: 123
+            name: "Bob"
+            avatar_image_url: "https://example.com/ico_avatar.png"
+          message_id: 22
+          filename: "README.md"
+          filesize: 2232
+          upload_time: 1384414750
+
+        api.get("/v1/rooms/#{roomId}/files/#{fileId}").reply 200, (url, body) ->
+          p0 = body.split '='
+          p0[1].should.equal "#{opts.createUrl}"
+          res
+
+        room.File(fileId).show opts, (err, data) ->
+          data.should.deep.equal res
+          done()
