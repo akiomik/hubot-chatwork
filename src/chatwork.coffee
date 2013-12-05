@@ -170,7 +170,7 @@ class ChatworkStreaming extends EventEmitter
       # TODO: support optional params
       show: (options, callback) =>
         body = "account_id=#{options.account}"
-        @get "/rooms/#{id}/files", callback
+        @get "/rooms/#{id}/files", body, callback
 
     File: (fid) =>
       # TODO: support optional params
