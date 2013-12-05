@@ -95,12 +95,10 @@ class ChatworkStreaming extends EventEmitter
 
     # TODO: support optional params
     update: (options, callback) =>
-      body = """
-         description=#{options.name}
-        &icon_preset=#{options.icon}
-        &name=#{options.name}
-      """
-      @put "/rooms", body, callback
+      body = "description=#{options.desc}" \
+        + "&icon_preset=#{options.icon}" \
+        + "&name=#{options.name}"
+      @put "/rooms/#{id}", body, callback
 
     leave: (callback) =>
       body = "action_type=leave"

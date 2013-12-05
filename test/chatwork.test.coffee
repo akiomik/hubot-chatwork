@@ -174,26 +174,26 @@ describe 'chatwork streaming', ->
         done()
 
   describe 'Rooms', ->
-    rooms = [
-      room_id: 123
-      name: "Group Chat Name"
-      type: "group"
-      role: "admin"
-      sticky: false
-      unread_num: 10
-      mention_num: 1
-      mytask_num: 0
-      message_num: 122
-      file_num: 10
-      task_num: 17
-      icon_path: "https://example.com/ico_group.png"
-      last_update_time: 1298905200
-    ]
-
     beforeEach ->
       nock.cleanAll()
 
     it 'should be able to show rooms', (done) ->
+      rooms = [
+        room_id: 123
+        name: "Group Chat Name"
+        type: "group"
+        role: "admin"
+        sticky: false
+        unread_num: 10
+        mention_num: 1
+        mytask_num: 0
+        message_num: 122
+        file_num: 10
+        task_num: 17
+        icon_path: "https://example.com/ico_group.png"
+        last_update_time: 1298905200
+      ]
+
       api.get('/v1/rooms').reply 200, rooms
       bot.Rooms().show (err, data) ->
         data.should.deep.equal rooms
@@ -225,6 +225,72 @@ describe 'chatwork streaming', ->
         res
 
       bot.Rooms().create name, adminIds, opts, (err, data) ->
+        data.should.deep.equal res
+        done()
+
+  describe 'Room', ->
+    beforeEach ->
+      nock.cleanAll()
+
+    it 'should be able to show a room', (done) ->
+      room =
+        room_id: 123
+        name: "Group Chat Name"
+        type: "group"
+        role: "admin"
+        sticky: false
+        unread_num: 10
+        mention_num: 1
+        mytask_num: 0
+        message_num: 122
+        file_num: 10
+        task_num: 17
+        icon_path: "https://example.com/ico_group.png"
+        last_update_time: 1298905200
+        description: "room description text"
+
+      api.get("/v1/rooms/#{roomId}").reply 200, room
+      bot.Room(roomId).show (err, data) ->
+        data.should.deep.equal room
+        done()
+
+    it 'should be able to update a room', (done) ->
+      res = room_id: 1234
+      opts =
+        desc: 'group chat description'
+        icon: 'meeting'
+        name: 'Website renewal project'
+      api.put("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+        params = body.split '&'
+        p0 = params[0].split '='
+        p1 = params[1].split '='
+        p2 = params[2].split '='
+        p0[1].should.equal opts.desc
+        p1[1].should.equal opts.icon
+        p2[1].should.equal opts.name
+        res
+
+      bot.Room(roomId).update opts, (err, data) ->
+        data.should.deep.equal res
+        done()
+
+    it 'should be able to leave a room', (done) ->
+      res = {}
+      api.delete("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+        body.should.equal "action_type=leave"
+        res
+
+      bot.Room(roomId).leave (err, data) ->
+        data.should.deep.equal res
+        done()
+
+    it 'should be able to delete a room', (done) ->
+      res = {}
+      api.delete("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+        body.should.equal "action_type=delete"
+        res
+
+      bot.Room(roomId).delete (err, data) ->
         data.should.deep.equal res
         done()
 
