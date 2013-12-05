@@ -373,3 +373,21 @@ describe 'chatwork streaming', ->
         api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
         bot.Room(roomId).Messages().listen()
 
+    describe 'Message', ->
+      it 'should be able to show a message', (done) ->
+        messageId = 5
+        message =
+          message_id: 5
+          account:
+            account_id: 123
+            name: "Bob"
+            avatar_image_url: "https://example.com/ico_avatar.png"
+          body: "Hello Chatwork!"
+          send_time: 1384242850
+          update_time: 0
+
+        api.get("/v1/rooms/#{roomId}/messages/#{messageId}").reply 200, message
+        bot.Room(roomId).Message(messageId).show (err, data) ->
+          data.should.deep.equal message
+          done()
+
