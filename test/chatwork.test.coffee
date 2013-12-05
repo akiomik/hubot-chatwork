@@ -294,38 +294,82 @@ describe 'chatwork streaming', ->
         data.should.deep.equal res
         done()
 
-  describe 'Messages', ->
-    messages =
-      [
-        message_id: 5
-        account:
+    describe 'Members', ->
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to show members', (done) ->
+        members = [
           account_id: 123
-          name: "Bob"
-          avatar_image_url: "https://example.com/ico_avatar.png"
-        body: "Hello Chatwork!"
-        send_time: 1384242850
-        update_time: 0
-      ]
+          role: "member"
+          name: "John Smith"
+          chatwork_id: "tarochatworkid"
+          organization_id: 101
+          organization_name: "Hello Company"
+          department: "Marketing"
+          avatar_image_url: "https://example.com/abc.png"
+        ]
+        api.get("/v1/rooms/#{roomId}/members").reply 200, members
+        bot.Room(roomId).Members().show (err, data) ->
+          data.should.deep.equal members
+          done()
 
-    beforeEach ->
-      nock.cleanAll()
+      it 'should be able to update members', (done) ->
+        adminIds = [123, 542, 1001]
+        opts =
+          memberIds: [21, 344]
+          roIds: [15, 103]
+        res =
+          admin: [123, 542, 1001]
+          member: [10, 103]
+          readonly: [6, 11]
 
-    it 'should be able to get messages', (done) ->
-      api.get("/v1/rooms/#{roomId}/messages").reply 200, messages
-      bot.Room(roomId).Messages().show (err, data) ->
-        data.should.deep.equal messages
-        done()
+        api.put("/v1/rooms/#{roomId}/members").reply 200, (url, body) ->
+          params = body.split '&'
+          p0 = params[0].split '='
+          p1 = params[1].split '='
+          p2 = params[2].split '='
+          p0[1].should.equal adminIds.join ','
+          p1[1].should.equal opts.memberIds.join ','
+          p2[1].should.equal opts.roIds.join ','
+          res
 
-    it 'should be able to create a message', (done) ->
-      res = message_id: 123
-      api.post("/v1/rooms/#{roomId}/messages").reply 200, res
+        bot.Room(roomId).Members().update adminIds, opts, (err, data) ->
+          data.should.deep.equal res
+          done()
 
-      message = 'This is a test message'
-      bot.Room(roomId).Messages().create message, (err, data) ->
-        data.should.have.property 'message_id'
-        done()
+    describe 'Messages', ->
+      messages =
+        [
+          message_id: 5
+          account:
+            account_id: 123
+            name: "Bob"
+            avatar_image_url: "https://example.com/ico_avatar.png"
+          body: "Hello Chatwork!"
+          send_time: 1384242850
+          update_time: 0
+        ]
 
-    it 'should be able to listen messages', (done) ->
-      api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
-      bot.Room(roomId).Messages().listen()
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to get messages', (done) ->
+        api.get("/v1/rooms/#{roomId}/messages").reply 200, messages
+        bot.Room(roomId).Messages().show (err, data) ->
+          data.should.deep.equal messages
+          done()
+
+      it 'should be able to create a message', (done) ->
+        res = message_id: 123
+        api.post("/v1/rooms/#{roomId}/messages").reply 200, res
+
+        message = 'This is a test message'
+        bot.Room(roomId).Messages().create message, (err, data) ->
+          data.should.have.property 'message_id'
+          done()
+
+      it 'should be able to listen messages', (done) ->
+        api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
+        bot.Room(roomId).Messages().listen()
 
