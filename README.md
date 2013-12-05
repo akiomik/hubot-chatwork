@@ -13,7 +13,7 @@ A Hubot adapter for chatwork.
 ```
 "dependencies": {
   # other packages...
-  "hubot-chatwork": "0.0.1"
+  "hubot-chatwork": "0.0.2"
 }
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "hubot-chatwork",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A hubot adapter for chatwork",
   "main": "src/chatwork",
   "scripts": {
