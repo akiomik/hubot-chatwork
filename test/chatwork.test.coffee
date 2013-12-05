@@ -441,3 +441,51 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
+      it 'should be able to create a task', (done) ->
+        text = "Buy milk"
+        toIds = [1, 3, 6]
+        opts =
+          limit: '1385996399'
+        res =
+          task_ids: [123, 124]
+
+        api.post("/v1/rooms/#{roomId}/tasks").reply 200, (url, body) ->
+          params = body.split '&'
+          p0 = params[0].split '='
+          p1 = params[1].split '='
+          p2 = params[2].split '='
+          p0[1].should.equal text
+          p1[1].should.equal toIds.join ','
+          p2[1].should.equal opts.limit
+          res
+
+        room.Tasks().create text, toIds, opts, (err, data) ->
+          data.should.deep.equal res
+          done()
+
+    describe 'Task', ->
+      beforeEach ->
+        nock.cleanAll()
+
+      it 'should be able to show a task', (done) ->
+        taskId = 3
+        res =
+          task_id: 3
+          account:
+            account_id: 123
+            name: "Bob"
+            avatar_image_url: "https://example.com/abc.png"
+          assigned_by_account:
+            account_id: 456
+            name: "Anna"
+            avatar_image_url: "https://example.com/def.png"
+          message_id: 13
+          body: "buy milk"
+          limit_time: 1384354799
+          status: "open"
+
+        api.get("/v1/rooms/#{roomId}/tasks/#{taskId}").reply 200, res
+        room.Task(taskId).show (err, data) ->
+          data.should.deep.equal res
+          done()
+

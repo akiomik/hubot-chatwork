@@ -157,16 +157,14 @@ class ChatworkStreaming extends EventEmitter
 
       # TODO: support optional params
       create: (text, toIds, options, callback) =>
-        body = """
-           body=#{text}
-          &to_ids=#{toIds.join ','}
-          &limit=#{options.limit}
-        """
+        body = "body=#{text}" \
+          + "&to_ids=#{toIds.join ','}" \
+          + "&limit=#{options.limit}"
         @post "/rooms/#{id}/tasks", body, callback
 
     Task: (tid) =>
       show: (callback) =>
-        @get "/rooms/#{id}/tasks/#{tid}", callback
+        @get "/rooms/#{id}/tasks/#{tid}", "", callback
 
     Files: =>
       # TODO: support optional params
