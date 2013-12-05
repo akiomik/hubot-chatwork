@@ -90,42 +90,44 @@ class ChatworkStreaming extends EventEmitter
       @post "/rooms", body, callback
 
   Room: (id) =>
+    baseUrl = "/rooms/#{id}"
+
     show: (callback) =>
-      @get "/rooms/#{id}", "", callback
+      @get "#{baseUrl}", "", callback
 
     # TODO: support optional params
     update: (options, callback) =>
       body = "description=#{options.desc}" \
         + "&icon_preset=#{options.icon}" \
         + "&name=#{options.name}"
-      @put "/rooms/#{id}", body, callback
+      @put "#{baseUrl}", body, callback
 
     leave: (callback) =>
       body = "action_type=leave"
-      @delete "/rooms/#{id}", body, callback
+      @delete "#{baseUrl}", body, callback
 
     delete: (callback) =>
       body = "action_type=delete"
-      @delete "/rooms/#{id}", body, callback
+      @delete "#{baseUrl}", body, callback
 
     Members: =>
       show: (callback) =>
-        @get "/rooms/#{id}/members", "", callback
+        @get "#{baseUrl}/members", "", callback
 
       # TODO: support optional params
       update: (adminIds, options, callback) =>
         body = "members_admin_ids=#{adminIds.join ','}" \
           + "&members_member_ids=#{options.memberIds.join ','}" \
           + "&members_readonly_ids=#{options.roIds.join ','}"
-        @put "/rooms/#{id}/members", body, callback
+        @put "#{baseUrl}/members", body, callback
 
     Messages: =>
       show: (callback) =>
-        @get "/rooms/#{id}/messages", "", callback
+        @get "#{baseUrl}/messages", "", callback
 
       create: (text, callback) =>
         body = "body=#{text}"
-        @post "/rooms/#{id}/messages", body, callback
+        @post "#{baseUrl}/messages", body, callback
 
       listen: =>
         lastMessage = 0
@@ -145,7 +147,7 @@ class ChatworkStreaming extends EventEmitter
 
     Message: (mid) =>
       show: (callback) =>
-        @get "/rooms/#{id}/messages/#{mid}", "", callback
+        @get "#{baseUrl}/messages/#{mid}", "", callback
 
     Tasks: =>
       # TODO: support optional params
@@ -153,30 +155,30 @@ class ChatworkStreaming extends EventEmitter
         body = "account_id=#{options.account}" \
           + "&assigned_by_account_id=#{options.assignedBy}" \
           + "&status=#{options.status}"
-        @get "/rooms/#{id}/tasks", body, callback
+        @get "#{baseUrl}/tasks", body, callback
 
       # TODO: support optional params
       create: (text, toIds, options, callback) =>
         body = "body=#{text}" \
           + "&to_ids=#{toIds.join ','}" \
           + "&limit=#{options.limit}"
-        @post "/rooms/#{id}/tasks", body, callback
+        @post "#{baseUrl}/tasks", body, callback
 
     Task: (tid) =>
       show: (callback) =>
-        @get "/rooms/#{id}/tasks/#{tid}", "", callback
+        @get "#{baseUrl}/tasks/#{tid}", "", callback
 
     Files: =>
       # TODO: support optional params
       show: (options, callback) =>
         body = "account_id=#{options.account}"
-        @get "/rooms/#{id}/files", body, callback
+        @get "#{baseUrl}/files", body, callback
 
     File: (fid) =>
       # TODO: support optional params
       show: (options, callback) =>
         body = "create_download_url=#{options.createUrl}"
-        @get "/rooms/#{id}/files/#{fid}", body, callback
+        @get "#{baseUrl}/files/#{fid}", body, callback
 
   get: (path, body, callback) ->
     @request "GET", path, body, callback
@@ -205,7 +207,7 @@ class ChatworkStreaming extends EventEmitter
       "method" : method
       "headers": headers
 
-    body = new Buffer(body)
+    body = new Buffer body
     options.headers["Content-Length"] = body.length
 
     request = HTTPS.request options, (response) ->
@@ -229,9 +231,9 @@ class ChatworkStreaming extends EventEmitter
 
       response.on "error", (err) ->
         logger.error "Chatwork HTTPS response error: #{err}"
-        callback err, { }
+        callback err, {}
 
-    request.end(body, 'binary')
+    request.end body, 'binary'
 
     request.on "error", (err) ->
       logger.error "Chatwork request error: #{err}"

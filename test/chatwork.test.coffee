@@ -28,11 +28,11 @@ describe 'chatwork', ->
     nock.cleanAll()
 
   it 'should be able to run', (done) ->
-    api.get("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
+    api.get("/v1/rooms/#{roomId}/messages").reply 200, -> done()
     chatwork.run()
 
   it 'should be able to send message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
+    api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
 
     envelope = room: roomId
     message = "This is a test message"
@@ -40,7 +40,7 @@ describe 'chatwork', ->
     chatwork.send envelope, message
 
   it 'should be able to reply message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages").reply 200, (uri, body) -> done()
+    api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
 
     envelope =
       room: roomId
@@ -133,19 +133,15 @@ describe 'chatwork streaming', ->
       ]
 
       opts =
-        assignedBy: '78'
+        assignedBy: 78
         status: 'done'
 
       api.get('/v1/my/tasks').reply 200, (url, body) ->
         params = body.split '&'
         p0 = params[0].split '='
         p1 = params[1].split '='
-        if p0[0] is 'status'
-          p0[1].should.be.equal opts.status
-          p1[1].should.be.equal opts.assignedBy
-        else
-          p0[1].should.be.equal opts.assignedBy
-          p1[1].should.be.equal opts.status
+        p0[1].should.be.equal "#{opts.assignedBy}"
+        p1[1].should.be.equal opts.status
         tasks
 
       bot.My().tasks opts, (err, data) ->
@@ -230,6 +226,7 @@ describe 'chatwork streaming', ->
 
   describe 'Room', ->
     room = null
+    baseUrl = "/v1/rooms/#{roomId}"
 
     before ->
       room = bot.Room(roomId)
@@ -254,7 +251,7 @@ describe 'chatwork streaming', ->
         last_update_time: 1298905200
         description: "room description text"
 
-      api.get("/v1/rooms/#{roomId}").reply 200, res
+      api.get(baseUrl).reply 200, res
       room.show (err, data) ->
         data.should.deep.equal res
         done()
@@ -265,7 +262,8 @@ describe 'chatwork streaming', ->
         desc: 'group chat description'
         icon: 'meeting'
         name: 'Website renewal project'
-      api.put("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+
+      api.put(baseUrl).reply 200, (url, body) ->
         params = body.split '&'
         p0 = params[0].split '='
         p1 = params[1].split '='
@@ -281,7 +279,7 @@ describe 'chatwork streaming', ->
 
     it 'should be able to leave a room', (done) ->
       res = {}
-      api.delete("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+      api.delete(baseUrl).reply 200, (url, body) ->
         body.should.equal "action_type=leave"
         res
 
@@ -291,7 +289,7 @@ describe 'chatwork streaming', ->
 
     it 'should be able to delete a room', (done) ->
       res = {}
-      api.delete("/v1/rooms/#{roomId}").reply 200, (url, body) ->
+      api.delete(baseUrl).reply 200, (url, body) ->
         body.should.equal "action_type=delete"
         res
 
@@ -314,7 +312,7 @@ describe 'chatwork streaming', ->
           department: "Marketing"
           avatar_image_url: "https://example.com/abc.png"
         ]
-        api.get("/v1/rooms/#{roomId}/members").reply 200, res
+        api.get("#{baseUrl}/members").reply 200, res
         room.Members().show (err, data) ->
           data.should.deep.equal res
           done()
@@ -329,7 +327,7 @@ describe 'chatwork streaming', ->
           member: [10, 103]
           readonly: [6, 11]
 
-        api.put("/v1/rooms/#{roomId}/members").reply 200, (url, body) ->
+        api.put("#{baseUrl}/members").reply 200, (url, body) ->
           params = body.split '&'
           p0 = params[0].split '='
           p1 = params[1].split '='
@@ -359,22 +357,22 @@ describe 'chatwork streaming', ->
           update_time: 0
         ]
 
-        api.get("/v1/rooms/#{roomId}/messages").reply 200, res
+        api.get("#{baseUrl}/messages").reply 200, res
         room.Messages().show (err, data) ->
           data.should.deep.equal res
           done()
 
       it 'should be able to create a message', (done) ->
-        res = message_id: 123
-        api.post("/v1/rooms/#{roomId}/messages").reply 200, res
-
         message = 'This is a test message'
+        res = message_id: 123
+
+        api.post("#{baseUrl}/messages").reply 200, res
         room.Messages().create message, (err, data) ->
           data.should.have.property 'message_id'
           done()
 
       it 'should be able to listen messages', (done) ->
-        api.get("/v1/rooms/#{roomId}/messages").reply 200, (url, body) -> done()
+        api.get("#{baseUrl}/messages").reply 200, -> done()
         room.Messages().listen()
 
     describe 'Message', ->
@@ -393,7 +391,7 @@ describe 'chatwork streaming', ->
           send_time: 1384242850
           update_time: 0
 
-        api.get("/v1/rooms/#{roomId}/messages/#{messageId}").reply 200, res
+        api.get("#{baseUrl}/messages/#{messageId}").reply 200, res
         room.Message(messageId).show (err, data) ->
           data.should.deep.equal res
           done()
@@ -427,7 +425,7 @@ describe 'chatwork streaming', ->
           status: "open"
         ]
 
-        api.get("/v1/rooms/#{roomId}/tasks").reply 200, (url, body) ->
+        api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
           params = body.split '&'
           p0 = params[0].split '='
           p1 = params[1].split '='
@@ -444,19 +442,17 @@ describe 'chatwork streaming', ->
       it 'should be able to create a task', (done) ->
         text = "Buy milk"
         toIds = [1, 3, 6]
-        opts =
-          limit: '1385996399'
-        res =
-          task_ids: [123, 124]
+        opts = limit: 1385996399
+        res = task_ids: [123, 124]
 
-        api.post("/v1/rooms/#{roomId}/tasks").reply 200, (url, body) ->
+        api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
           params = body.split '&'
           p0 = params[0].split '='
           p1 = params[1].split '='
           p2 = params[2].split '='
           p0[1].should.equal text
           p1[1].should.equal toIds.join ','
-          p2[1].should.equal opts.limit
+          p2[1].should.equal "#{opts.limit}"
           res
 
         room.Tasks().create text, toIds, opts, (err, data) ->
@@ -484,7 +480,7 @@ describe 'chatwork streaming', ->
           limit_time: 1384354799
           status: "open"
 
-        api.get("/v1/rooms/#{roomId}/tasks/#{taskId}").reply 200, res
+        api.get("#{baseUrl}/tasks/#{taskId}").reply 200, res
         room.Task(taskId).show (err, data) ->
           data.should.deep.equal res
           done()
@@ -494,8 +490,7 @@ describe 'chatwork streaming', ->
         nock.cleanAll()
 
       it 'should be able to show files', (done) ->
-        opts =
-          account: '101'
+        opts = account: 101
         res = [
           file_id: 3
           account:
@@ -508,9 +503,9 @@ describe 'chatwork streaming', ->
           upload_time: 1384414750
         ]
 
-        api.get("/v1/rooms/#{roomId}/files").reply 200, (url, body) ->
+        api.get("#{baseUrl}/files").reply 200, (url, body) ->
           p0 = body.split '='
-          p0[1].should.equal opts.account
+          p0[1].should.equal "#{opts.account}"
           res
 
         room.Files().show opts, (err, data) ->
@@ -523,8 +518,7 @@ describe 'chatwork streaming', ->
 
       it 'should be able to show a file', (done) ->
         fileId = 3
-        opts =
-          createUrl: true
+        opts = createUrl: true
         res =
           file_id: 3
           account:
@@ -536,7 +530,7 @@ describe 'chatwork streaming', ->
           filesize: 2232
           upload_time: 1384414750
 
-        api.get("/v1/rooms/#{roomId}/files/#{fileId}").reply 200, (url, body) ->
+        api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
           p0 = body.split '='
           p0[1].should.equal "#{opts.createUrl}"
           res
@@ -544,3 +538,4 @@ describe 'chatwork streaming', ->
         room.File(fileId).show opts, (err, data) ->
           data.should.deep.equal res
           done()
+
