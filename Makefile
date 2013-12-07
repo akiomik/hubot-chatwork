@@ -1,9 +1,12 @@
 .PHONY: test
+
+MOCHA = ./node_modules/.bin/mocha
+
 test:
-	mocha test
+	$(MOCHA) test
 
 test-coverage:
-	mocha -R html-cov test > coverage.html
+	$(MOCHA) -R html-cov test > coverage.html
 
 test-coveralls:
-	mocha test --reporter mocha-lcov-reporter | coveralls
+	$(MOCHA) test --reporter mocha-lcov-reporter | coveralls

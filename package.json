@@ -34,11 +34,11 @@
     "hubot": ">=2.3.0"
   },
   "devDependencies": {
-    "coffee-script": "1.6.3",
+    "coffee-script": "~1.6.3",
     "chai": "*",
     "mocha": "*",
-    "nock": "0.23.0",
-    "blanket": "git://github.com/alex-seville/blanket.git#e8c7207fba8c2e12ea6e4c62006c0d0a09e0d79d",
+    "nock": "~0.23.0",
+    "blanket": ">=1.1.5",
     "mocha-lcov-reporter": "0.0.1",
     "coveralls": "~2.5.0"
   }
