@@ -8,6 +8,7 @@ module.exports = (grunt) ->
         options:
           reporter: 'html-cov'
           output: 'coverage.html'
+          coverage: true
       coveralls:
         options:
           coveralls:
@@ -19,6 +20,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-mocha-cov'
 
   grunt.registerTask 'test', ['mochacov:test']
-  grunt.registerTask 'coverage', ['mochacov:coverage']
-  grunt.registerTask 'coveralls', ['mochacov:coveralls']
+  grunt.registerTask 'coverage', ['test', 'mochacov:coverage']
+  grunt.registerTask 'coveralls', ['test', 'mochacov:coveralls']
+  grunt.registerTask 'default', 'test'
 
