@@ -82,27 +82,37 @@ describe 'ChatworkStreaming', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should get my status', (done) ->
-      api.get('/v1/my/status').reply 200, fixtures.my.status.get
-      bot.My().status (err, data) ->
-        data.should.be.deep.equal fixtures.my.status.get
-        done()
+    describe '#status', ->
+      it 'should get my status', (done) ->
+        api.get('/v1/my/status').reply 200, fixtures.my.status.get
+        bot.My().status (err, data) ->
+          data.should.be.deep.equal fixtures.my.status.get
+          done()
 
-    it 'should get my tasks', (done) ->
-      opts =
-        assignedBy: 78
-        status: 'done'
+    describe '#tasks()', ->
+      it 'should get my tasks', (done) ->
+        api.get('/v1/my/tasks').reply 200, fixtures.my.tasks.get
+        bot.My().tasks {}, (err, data) ->
+          data.should.be.deep.equal fixtures.my.tasks.get
+          done()
 
-      api.get('/v1/my/tasks').reply 200, (url, body) ->
-        params = Helper.parseBody body
-        params.should.be.deep.equal
-          assigned_by_account_id: "#{opts.assignedBy}"
-          status: opts.status
-        fixtures.my.tasks.get
+      it 'should get my tasks when no opts', (done) ->
+        api.get('/v1/my/tasks').reply 200, (url, body) ->
+          body.should.be.equal ""
+          done()
+        bot.My().tasks {}, null
 
-      bot.My().tasks opts, (err, data) ->
-        data.should.be.deep.equal fixtures.my.tasks.get
-        done()
+      it 'should get my tasks when full opts', (done) ->
+        opts =
+          assignedBy: 78
+          status: 'done'
+        api.get('/v1/my/tasks').reply 200, (url, body) ->
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            assigned_by_account_id: "#{opts.assignedBy}"
+            status: opts.status
+          done()
+        bot.My().tasks opts, null
 
   describe '#Contacts()', ->
     beforeEach ->

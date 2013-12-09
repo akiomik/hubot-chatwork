@@ -66,10 +66,10 @@ class ChatworkStreaming extends EventEmitter
     status: (callback) =>
       @get "/my/status", "", callback
 
-    # TODO: support optional params
-    tasks: (options, callback) =>
-      body = "assigned_by_account_id=#{options.assignedBy}" \
-        + "&status=#{options.status}"
+    tasks: (opts, callback) =>
+      body = ""
+      body += "assigned_by_account_id=#{opts.assignedBy}" if opts.assignedBy?
+      body += "&status=#{opts.status}" if opts.status?
       @get "/my/tasks", body, callback
 
   Contacts: (callback) =>
