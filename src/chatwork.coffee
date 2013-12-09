@@ -69,7 +69,8 @@ class ChatworkStreaming extends EventEmitter
     tasks: (opts, callback) =>
       body = ""
       body += "assigned_by_account_id=#{opts.assignedBy}" if opts.assignedBy?
-      body += "&status=#{opts.status}" if opts.status?
+      body += "&" if opts.assignedBy? and opts.status?
+      body += "status=#{opts.status}" if opts.status?
       @get "/my/tasks", body, callback
 
   Contacts: (callback) =>
@@ -79,14 +80,12 @@ class ChatworkStreaming extends EventEmitter
     show: (callback) =>
       @get "/rooms", "", callback
 
-    # TODO: support optional params
-    create: (name, adminIds, options, callback) =>
-      body = "description=#{options.desc}" \
-        + "&icon_preset=#{options.icon}" \
-        + "&members_admin_ids=#{adminIds.join ','}" \
-        + "&members_member_ids=#{options.memberIds.join ','}" \
-        + "&members_readonly_ids=#{options.roIds.join ','}" \
-        + "&name=#{name}"
+    create: (name, adminIds, opts, callback) =>
+      body = "name=#{name}&members_admin_ids=#{adminIds.join ','}"
+      body += "&description=#{opts.desc}" if opts.desc?
+      body += "&icon_preset=#{opts.icon}" if opts.icon?
+      body += "&members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
+      body += "&members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
       @post "/rooms", body, callback
 
   Room: (id) =>

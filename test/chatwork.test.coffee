@@ -128,34 +128,50 @@ describe 'ChatworkStreaming', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should show rooms', (done) ->
-      api.get('/v1/rooms').reply 200, fixtures.rooms.get
-      bot.Rooms().show (err, data) ->
-        data.should.be.deep.equal fixtures.rooms.get
-        done()
+    describe '#show()', ->
+      it 'should show rooms', (done) ->
+        api.get('/v1/rooms').reply 200, fixtures.rooms.get
+        bot.Rooms().show (err, data) ->
+          data.should.be.deep.equal fixtures.rooms.get
+          done()
 
-    it 'should create rooms', (done) ->
-      name = 'Website renewal project'
-      adminIds = [123, 542, 1001]
-      opts =
-        desc: 'group chat description'
-        icon: 'meeting'
-        memberIds: [21, 344]
-        roIds: [15, 103]
-      api.post('/v1/rooms').reply 200, (url, body) ->
-        params = Helper.parseBody body
-        params.should.be.deep.equal
-          description:  opts.desc
-          icon_preset: opts.icon
-          members_admin_ids: adminIds.join ','
-          members_member_ids: opts.memberIds.join ','
-          members_readonly_ids: opts.roIds.join ','
-          name: name
-        fixtures.rooms.post
+    describe '#create()', ->
+      it 'should create a room', (done) ->
+        name = 'Website renewal project'
+        adminIds = [123, 542, 1001]
+        api.post('/v1/rooms').reply 200, fixtures.rooms.post
+        bot.Rooms().create name, adminIds, {}, (err, data) ->
+          data.should.be.deep.equal fixtures.rooms.post
+          done()
 
-      bot.Rooms().create name, adminIds, opts, (err, data) ->
-        data.should.be.deep.equal fixtures.rooms.post
-        done()
+      it 'should create a room when no opts', (done) ->
+        name = 'Website renewal project'
+        adminIds = [123, 542, 1001]
+        api.post('/v1/rooms').reply 200, (url, body) ->
+          body.should.be.equal "name=#{name}" \
+            + "&members_admin_ids=#{adminIds.join ','}"
+          done()
+        bot.Rooms().create name, adminIds, {}, null
+
+      it 'should create a room when full opts', (done) ->
+        name = 'Website renewal project'
+        adminIds = [123, 542, 1001]
+        opts =
+          desc: 'group chat description'
+          icon: 'meeting'
+          memberIds: [21, 344]
+          roIds: [15, 103]
+        api.post('/v1/rooms').reply 200, (url, body) ->
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            description:  opts.desc
+            icon_preset: opts.icon
+            members_admin_ids: adminIds.join ','
+            members_member_ids: opts.memberIds.join ','
+            members_readonly_ids: opts.roIds.join ','
+            name: name
+          done()
+        bot.Rooms().create name, adminIds, opts, null
 
   describe '#Room()', ->
     room = null
