@@ -117,11 +117,12 @@ class ChatworkStreaming extends EventEmitter
       show: (callback) =>
         @get "#{baseUrl}/members", "", callback
 
-      # TODO: support optional params
-      update: (adminIds, options, callback) =>
-        body = "members_admin_ids=#{adminIds.join ','}" \
-          + "&members_member_ids=#{options.memberIds.join ','}" \
-          + "&members_readonly_ids=#{options.roIds.join ','}"
+      update: (adminIds, opts, callback) =>
+        params = []
+        params.push "members_admin_ids=#{adminIds.join ','}"
+        params.push "members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
+        params.push "members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
+        body = params.join '&'
         @put "#{baseUrl}/members", body, callback
 
     Messages: =>

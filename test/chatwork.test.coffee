@@ -242,29 +242,42 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show members', (done) ->
-        api.get("#{baseUrl}/members").reply 200, fixtures.room.members.get
-        room.Members().show (err, data) ->
-          data.should.be.deep.equal fixtures.room.members.get
-          done()
+      describe '#show()', ->
+        it 'should show members', (done) ->
+          api.get("#{baseUrl}/members").reply 200, fixtures.room.members.get
+          room.Members().show (err, data) ->
+            data.should.be.deep.equal fixtures.room.members.get
+            done()
 
-      it 'should update members', (done) ->
-        adminIds = [123, 542, 1001]
-        opts =
-          memberIds: [21, 344]
-          roIds: [15, 103]
+      describe '#update()', ->
+        it 'should update members', (done) ->
+          adminIds = [123, 542, 1001]
+          api.put("#{baseUrl}/members").reply 200, fixtures.room.members.put
+          room.Members().update adminIds, {}, (err, data) ->
+            data.should.be.deep.equal fixtures.room.members.put
+            done()
 
-        api.put("#{baseUrl}/members").reply 200, (url, body) ->
-          params = Helper.parseBody body
-          params.should.be.deep.equal
-            members_admin_ids: adminIds.join ','
-            members_member_ids: opts.memberIds.join ','
-            members_readonly_ids: opts.roIds.join ','
-          fixtures.room.members.put
+        it 'should update members when no opts', (done) ->
+          adminIds = [123, 542, 1001]
+          api.put("#{baseUrl}/members").reply 200, (url, body) ->
+            body.should.be.equal "members_admin_ids=#{adminIds.join ','}"
+            done()
+          room.Members().update adminIds, {}, null
 
-        room.Members().update adminIds, opts, (err, data) ->
-          data.should.be.deep.equal fixtures.room.members.put
-          done()
+        it 'should update members when full opts', (done) ->
+          adminIds = [123, 542, 1001]
+          opts =
+            memberIds: [21, 344]
+            roIds: [15, 103]
+
+          api.put("#{baseUrl}/members").reply 200, (url, body) ->
+            params = Helper.parseBody body
+            params.should.be.deep.equal
+              members_admin_ids: adminIds.join ','
+              members_member_ids: opts.memberIds.join ','
+              members_readonly_ids: opts.roIds.join ','
+            done()
+          room.Members().update adminIds, opts, null
 
     describe '#Messages()', ->
       beforeEach ->
