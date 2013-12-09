@@ -81,6 +81,7 @@ class ChatworkStreaming extends EventEmitter
       @get "/rooms", "", callback
 
     create: (name, adminIds, opts, callback) =>
+      params = []
       params.push "name=#{name}"
       params.push "members_admin_ids=#{adminIds.join ','}"
       params.push "description=#{opts.desc}" if opts.desc?
