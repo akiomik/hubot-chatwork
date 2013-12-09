@@ -5,15 +5,16 @@ A Hubot adapter for chatwork.
 
 [![Build Status](https://travis-ci.org/akiomik/hubot-chatwork.png?branch=master)](https://travis-ci.org/akiomik/hubot-chatwork)
 [![Coverage Status](https://coveralls.io/repos/akiomik/hubot-chatwork/badge.png?branch=master)](https://coveralls.io/r/akiomik/hubot-chatwork?branch=master)
+[![Dependency Status](https://gemnasium.com/akiomik/hubot-chatwork.png)](https://gemnasium.com/akiomik/hubot-chatwork)
 [![NPM version](https://badge.fury.io/js/hubot-chatwork.png)](http://badge.fury.io/js/hubot-chatwork)
 
 ## Installation
 
 1. Add `hubot-chatwork` to dependencies in your hubot's `package.json`.
-```
+```javascript
 "dependencies": {
-  # other packages...
-  "hubot-chatwork": "0.0.2"
+      // other packages...
+      "hubot-chatwork": "0.0.2"
 }
 ```
 
