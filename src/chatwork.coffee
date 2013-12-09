@@ -181,9 +181,9 @@ class ChatworkStreaming extends EventEmitter
         @get "#{baseUrl}/files", body, callback
 
     File: (fid) =>
-      # TODO: support optional params
-      show: (options, callback) =>
-        body = "create_download_url=#{options.createUrl}"
+      show: (opts, callback) =>
+        body = ""
+        body += "create_download_url=#{opts.createUrl}" if opts.createUrl?
         @get "#{baseUrl}/files/#{fid}", body, callback
 
   get: (path, body, callback) ->

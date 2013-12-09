@@ -421,20 +421,31 @@ describe 'ChatworkStreaming', ->
           room.Files().show opts, null
 
     describe '#File()', ->
+      fileId = 3
+
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show a file', (done) ->
-        fileId = 3
-        opts = createUrl: true
+      describe '#show()', ->
+        it 'should show a file', (done) ->
+          res = fixtures.room.file.get
+          api.get("#{baseUrl}/files/#{fileId}").reply 200, res
+          room.File(fileId).show {}, (err, data) ->
+            data.should.be.deep.equal res
+            done()
 
-        api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
-          body.should.be.equal "create_download_url=#{opts.createUrl}"
-          fixtures.room.file.get
+        it 'should show a file when no opts', (done) ->
+          api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
+            body.should.be.equal ""
+            done()
+          room.File(fileId).show {}, null
 
-        room.File(fileId).show opts, (err, data) ->
-          data.should.be.deep.equal fixtures.room.file.get
-          done()
+        it 'should show a file', (done) ->
+          opts = createUrl: true
+          api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
+            body.should.be.equal "create_download_url=#{opts.createUrl}"
+            done()
+          room.File(fileId).show opts, null
 
 class Helper
   # reqest body to object
