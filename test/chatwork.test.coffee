@@ -137,11 +137,10 @@ describe 'ChatworkStreaming', ->
         status: 'done'
 
       api.get('/v1/my/tasks').reply 200, (url, body) ->
-        params = body.split '&'
-        p0 = params[0].split '='
-        p1 = params[1].split '='
-        p0[1].should.be.equal "#{opts.assignedBy}"
-        p1[1].should.be.equal opts.status
+        params = Helper.parseBody body
+        params.should.be.deep.equal
+          assigned_by_account_id: "#{opts.assignedBy}"
+          status: opts.status
         tasks
 
       bot.My().tasks opts, (err, data) ->
@@ -205,19 +204,14 @@ describe 'ChatworkStreaming', ->
         memberIds: [21, 344]
         roIds: [15, 103]
       api.post('/v1/rooms').reply 200, (url, body) ->
-        params = body.split '&'
-        p0 = params[0].split '='
-        p1 = params[1].split '='
-        p2 = params[2].split '='
-        p3 = params[3].split '='
-        p4 = params[4].split '='
-        p5 = params[5].split '='
-        p0[1].should.be.equal opts.desc
-        p1[1].should.be.equal opts.icon
-        p2[1].should.be.equal adminIds.join ','
-        p3[1].should.be.equal opts.memberIds.join ','
-        p4[1].should.be.equal opts.roIds.join ','
-        p5[1].should.be.equal name
+        params = Helper.parseBody body
+        params.should.be.deep.equal
+          description:  opts.desc
+          icon_preset: opts.icon
+          members_admin_ids: adminIds.join ','
+          members_member_ids: opts.memberIds.join ','
+          members_readonly_ids: opts.roIds.join ','
+          name: name
         res
 
       bot.Rooms().create name, adminIds, opts, (err, data) ->
@@ -264,13 +258,11 @@ describe 'ChatworkStreaming', ->
         name: 'Website renewal project'
 
       api.put(baseUrl).reply 200, (url, body) ->
-        params = body.split '&'
-        p0 = params[0].split '='
-        p1 = params[1].split '='
-        p2 = params[2].split '='
-        p0[1].should.equal opts.desc
-        p1[1].should.equal opts.icon
-        p2[1].should.equal opts.name
+        params = Helper.parseBody body
+        params.should.be.deep.equal
+          description: opts.desc
+          icon_preset: opts.icon
+          name: opts.name
         res
 
       room.update opts, (err, data) ->
@@ -328,13 +320,11 @@ describe 'ChatworkStreaming', ->
           readonly: [6, 11]
 
         api.put("#{baseUrl}/members").reply 200, (url, body) ->
-          params = body.split '&'
-          p0 = params[0].split '='
-          p1 = params[1].split '='
-          p2 = params[2].split '='
-          p0[1].should.equal adminIds.join ','
-          p1[1].should.equal opts.memberIds.join ','
-          p2[1].should.equal opts.roIds.join ','
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            members_admin_ids: adminIds.join ','
+            members_member_ids: opts.memberIds.join ','
+            members_readonly_ids: opts.roIds.join ','
           res
 
         room.Members().update adminIds, opts, (err, data) ->
@@ -426,13 +416,11 @@ describe 'ChatworkStreaming', ->
         ]
 
         api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
-          params = body.split '&'
-          p0 = params[0].split '='
-          p1 = params[1].split '='
-          p2 = params[2].split '='
-          p0[1].should.equal opts.account
-          p1[1].should.equal opts.assignedBy
-          p2[1].should.equal opts.status
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            account_id: opts.account
+            assigned_by_account_id: opts.assignedBy
+            status: opts.status
           res
 
         room.Tasks().show opts, (err, data) ->
@@ -446,13 +434,11 @@ describe 'ChatworkStreaming', ->
         res = task_ids: [123, 124]
 
         api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
-          params = body.split '&'
-          p0 = params[0].split '='
-          p1 = params[1].split '='
-          p2 = params[2].split '='
-          p0[1].should.equal text
-          p1[1].should.equal toIds.join ','
-          p2[1].should.equal "#{opts.limit}"
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            body: text
+            limit: "#{opts.limit}"
+            to_ids: toIds.join ','
           res
 
         room.Tasks().create text, toIds, opts, (err, data) ->
@@ -538,4 +524,15 @@ describe 'ChatworkStreaming', ->
         room.File(fileId).show opts, (err, data) ->
           data.should.deep.equal res
           done()
+
+class Helper
+  # reqest body to object
+  # static
+  @parseBody: (body) ->
+    obj = {}
+    params = body.split '&'
+    for param in params
+      [key, value] = param.split '='
+      obj[key] = value
+    obj
 
