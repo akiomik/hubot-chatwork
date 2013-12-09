@@ -175,9 +175,9 @@ class ChatworkStreaming extends EventEmitter
         @get "#{baseUrl}/tasks/#{tid}", "", callback
 
     Files: =>
-      # TODO: support optional params
-      show: (options, callback) =>
-        body = "account_id=#{options.account}"
+      show: (opts, callback) =>
+        body = ""
+        body += "account_id=#{opts.account}" if opts.account?
         @get "#{baseUrl}/files", body, callback
 
     File: (fid) =>

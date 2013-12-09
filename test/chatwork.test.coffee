@@ -399,16 +399,26 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show files', (done) ->
-        opts = account: 101
+      describe '#show()', ->
+        it 'should show files', (done) ->
+          api.get("#{baseUrl}/files").reply 200, fixtures.room.files.get
+          room.Files().show {}, (err, data) ->
+            data.should.be.deep.equal fixtures.room.files.get
+            done()
 
-        api.get("#{baseUrl}/files").reply 200, (url, body) ->
-          body.should.be.equal "account_id=#{opts.account}"
-          fixtures.room.files.get
+        it 'should show files when no opts', (done) ->
+          api.get("#{baseUrl}/files").reply 200, (url, body) ->
+            body.should.be.equal ""
+            done()
+          room.Files().show {}, null
 
-        room.Files().show opts, (err, data) ->
-          data.should.be.deep.equal fixtures.room.files.get
-          done()
+        it 'should show files when full opts', (done) ->
+          opts = account: 101
+          api.get("#{baseUrl}/files").reply 200, (url, body) ->
+            body.should.be.equal "account_id=#{opts.account}"
+            fixtures.room.files.get
+            done()
+          room.Files().show opts, null
 
     describe '#File()', ->
       beforeEach ->
