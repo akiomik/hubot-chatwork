@@ -310,13 +310,14 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show a message', (done) ->
-        messageId = 5
-        res = fixtures.room.message.get
-        api.get("#{baseUrl}/messages/#{messageId}").reply 200, res
-        room.Message(messageId).show (err, data) ->
-          data.should.be.deep.equal res
-          done()
+      describe '#show()', ->
+        it 'should show a message', (done) ->
+          messageId = 5
+          res = fixtures.room.message.get
+          api.get("#{baseUrl}/messages/#{messageId}").reply 200, res
+          room.Message(messageId).show (err, data) ->
+            data.should.be.deep.equal res
+            done()
 
     describe '#Tasks()', ->
       beforeEach ->
