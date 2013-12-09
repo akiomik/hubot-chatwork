@@ -283,25 +283,28 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should get messages', (done) ->
-        api.get("#{baseUrl}/messages").reply 200, fixtures.room.messages.get
-        room.Messages().show (err, data) ->
-          data.should.be.deep.equal fixtures.room.messages.get
-          done()
+      describe '#show()', ->
+        it 'should get messages', (done) ->
+          api.get("#{baseUrl}/messages").reply 200, fixtures.room.messages.get
+          room.Messages().show (err, data) ->
+            data.should.be.deep.equal fixtures.room.messages.get
+            done()
 
-      it 'should create a message', (done) ->
-        message = 'This is a test message'
-        api.post("#{baseUrl}/messages").reply 200, (url, body) ->
-          body.should.be.equal "body=#{message}"
-          fixtures.room.messages.post
+      describe '#create()', ->
+        it 'should create a message', (done) ->
+          message = 'This is a test message'
+          api.post("#{baseUrl}/messages").reply 200, (url, body) ->
+            body.should.be.equal "body=#{message}"
+            fixtures.room.messages.post
 
-        room.Messages().create message, (err, data) ->
-          data.should.be.deep.equal fixtures.room.messages.post
-          done()
+          room.Messages().create message, (err, data) ->
+            data.should.be.deep.equal fixtures.room.messages.post
+            done()
 
-      it 'should listen messages', (done) ->
-        api.get("#{baseUrl}/messages").reply 200, -> done()
-        room.Messages().listen()
+      describe '#listen()', ->
+        it 'should listen messages', (done) ->
+          api.get("#{baseUrl}/messages").reply 200, -> done()
+          room.Messages().listen()
 
     describe '#Message()', ->
       beforeEach ->
