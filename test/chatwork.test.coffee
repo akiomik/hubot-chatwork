@@ -400,10 +400,6 @@ describe 'ChatworkStreaming', ->
           status: "done"
         res = [
           task_id: 3
-          room:
-            room_id: 5
-            name: "Group Chat Name"
-            icon_path: "https://example.com/ico_group.png"
           account:
             account_id: 123
             name: "Bob"
