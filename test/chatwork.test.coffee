@@ -20,18 +20,18 @@ robot = new RobotMock
 
 api = (nock 'https://api.chatwork.com').matchHeader 'X-ChatWorkToken', token
 
-describe 'chatwork', ->
+describe 'Chatwork', ->
   chatwork = null
 
   beforeEach ->
     chatwork = Chatwork.use robot
     nock.cleanAll()
 
-  it 'should be able to run', (done) ->
+  it 'should run', (done) ->
     api.get("/v1/rooms/#{roomId}/messages").reply 200, -> done()
     chatwork.run()
 
-  it 'should be able to send message', (done) ->
+  it 'should send message', (done) ->
     api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
 
     envelope = room: roomId
@@ -39,7 +39,7 @@ describe 'chatwork', ->
     chatwork.run()
     chatwork.send envelope, message
 
-  it 'should be able to reply message', (done) ->
+  it 'should reply message', (done) ->
     api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
 
     envelope =
@@ -51,7 +51,7 @@ describe 'chatwork', ->
     chatwork.run()
     chatwork.reply envelope, message
 
-describe 'chatwork streaming', ->
+describe 'ChatworkStreaming', ->
   bot = null
 
   beforeEach ->
@@ -67,7 +67,7 @@ describe 'chatwork streaming', ->
   it 'should have host', ->
     bot.should.have.property 'host'
 
-  describe 'Me', ->
+  describe '#Me()', ->
     beforeEach ->
       nock.cleanAll()
 
@@ -91,17 +91,17 @@ describe 'chatwork streaming', ->
       twitter: 'mytwitter_id'
       avatar_image_url: 'https://example.com/abc.png'
 
-    it 'should be able to get own informations', (done) ->
+    it 'should get own informations', (done) ->
       api.get('/v1/me').reply 200, info
       bot.Me (err, data) ->
         data.should.deep.equal info
         done()
 
-  describe 'My', ->
+  describe '#My()', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should be able to get my status', (done) ->
+    it 'should get my status', (done) ->
       status =
         unread_room_num: 2
         mention_room_num: 1
@@ -115,7 +115,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal status
         done()
 
-    it 'should be able to get my tasks', (done) ->
+    it 'should get my tasks', (done) ->
       tasks = [
         task_id: 3
         room:
@@ -148,7 +148,7 @@ describe 'chatwork streaming', ->
         data.should.be.deep.equal tasks
         done()
 
-  describe 'Contacts', ->
+  describe '#Contacts()', ->
     beforeEach ->
       nock.cleanAll()
 
@@ -163,17 +163,17 @@ describe 'chatwork streaming', ->
       avatar_image_url: "https://example.com/abc.png"
     ]
 
-    it 'should be able to get contacts', (done) ->
+    it 'should get contacts', (done) ->
       api.get('/v1/contacts').reply 200, contacts
       bot.Contacts (err, data) ->
         data.should.deep.equal contacts
         done()
 
-  describe 'Rooms', ->
+  describe '#Rooms()', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should be able to show rooms', (done) ->
+    it 'should show rooms', (done) ->
       rooms = [
         room_id: 123
         name: "Group Chat Name"
@@ -195,7 +195,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal rooms
         done()
 
-    it 'should be able to create rooms', (done) ->
+    it 'should create rooms', (done) ->
       res = roomId: 1234
       name = 'Website renewal project'
       adminIds = [123, 542, 1001]
@@ -224,7 +224,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal res
         done()
 
-  describe 'Room', ->
+  describe '#Room()', ->
     room = null
     baseUrl = "/v1/rooms/#{roomId}"
 
@@ -234,7 +234,7 @@ describe 'chatwork streaming', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should be able to show a room', (done) ->
+    it 'should show a room', (done) ->
       res =
         room_id: 123
         name: "Group Chat Name"
@@ -256,7 +256,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal res
         done()
 
-    it 'should be able to update a room', (done) ->
+    it 'should update a room', (done) ->
       res = room_id: 1234
       opts =
         desc: 'group chat description'
@@ -277,7 +277,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal res
         done()
 
-    it 'should be able to leave a room', (done) ->
+    it 'should leave a room', (done) ->
       res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
         body.should.equal "action_type=leave"
@@ -287,7 +287,7 @@ describe 'chatwork streaming', ->
         data.should.deep.equal res
         done()
 
-    it 'should be able to delete a room', (done) ->
+    it 'should delete a room', (done) ->
       res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
         body.should.equal "action_type=delete"
@@ -301,7 +301,7 @@ describe 'chatwork streaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show members', (done) ->
+      it 'should show members', (done) ->
         res = [
           account_id: 123
           role: "member"
@@ -317,7 +317,7 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-      it 'should be able to update members', (done) ->
+      it 'should update members', (done) ->
         adminIds = [123, 542, 1001]
         opts =
           memberIds: [21, 344]
@@ -341,11 +341,11 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-    describe 'Messages', ->
+    describe '#Messages()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to get messages', (done) ->
+      it 'should get messages', (done) ->
         res = [
           message_id: 5
           account:
@@ -362,7 +362,7 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-      it 'should be able to create a message', (done) ->
+      it 'should create a message', (done) ->
         message = 'This is a test message'
         res = message_id: 123
 
@@ -371,15 +371,15 @@ describe 'chatwork streaming', ->
           data.should.have.property 'message_id'
           done()
 
-      it 'should be able to listen messages', (done) ->
+      it 'should listen messages', (done) ->
         api.get("#{baseUrl}/messages").reply 200, -> done()
         room.Messages().listen()
 
-    describe 'Message', ->
+    describe '#Message()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show a message', (done) ->
+      it 'should show a message', (done) ->
         messageId = 5
         res =
           message_id: 5
@@ -396,11 +396,11 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-    describe 'Tasks', ->
+    describe '#Tasks()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show tasks', (done) ->
+      it 'should show tasks', (done) ->
         opts =
           account: '101'
           assignedBy: '78'
@@ -439,7 +439,7 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-      it 'should be able to create a task', (done) ->
+      it 'should create a task', (done) ->
         text = "Buy milk"
         toIds = [1, 3, 6]
         opts = limit: 1385996399
@@ -459,11 +459,11 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-    describe 'Task', ->
+    describe '#Task()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show a task', (done) ->
+      it 'should show a task', (done) ->
         taskId = 3
         res =
           task_id: 3
@@ -485,11 +485,11 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-    describe 'Files', ->
+    describe '#Files()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show files', (done) ->
+      it 'should show files', (done) ->
         opts = account: 101
         res = [
           file_id: 3
@@ -512,11 +512,11 @@ describe 'chatwork streaming', ->
           data.should.deep.equal res
           done()
 
-    describe 'File', ->
+    describe '#File()', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should be able to show a file', (done) ->
+      it 'should show a file', (done) ->
         fileId = 3
         opts = createUrl: true
         res =
