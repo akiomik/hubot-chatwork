@@ -386,12 +386,14 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show a task', (done) ->
-        taskId = 3
-        api.get("#{baseUrl}/tasks/#{taskId}").reply 200, fixtures.room.task.get
-        room.Task(taskId).show (err, data) ->
-          data.should.be.deep.equal fixtures.room.task.get
-          done()
+      describe '#show()', ->
+        it 'should show a task', (done) ->
+          taskId = 3
+          res = fixtures.room.task.get
+          api.get("#{baseUrl}/tasks/#{taskId}").reply 200, res
+          room.Task(taskId).show (err, data) ->
+            data.should.be.deep.equal res
+            done()
 
     describe '#Files()', ->
       beforeEach ->
