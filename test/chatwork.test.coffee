@@ -60,9 +60,9 @@ describe 'ChatworkStreaming', ->
     bot = chatwork.bot
 
   it 'should have configs from environment variables', ->
-    bot.token.should.equal token
-    bot.rooms.should.deep.equal [roomId]
-    bot.rate.should.equal parseInt apiRate, 10
+    bot.token.should.be.equal token
+    bot.rooms.should.be.deep.equal [roomId]
+    bot.rate.should.be.equal parseInt apiRate, 10
 
   it 'should have host', ->
     bot.should.have.property 'host'
@@ -94,7 +94,7 @@ describe 'ChatworkStreaming', ->
     it 'should get own informations', (done) ->
       api.get('/v1/me').reply 200, info
       bot.Me (err, data) ->
-        data.should.deep.equal info
+        data.should.be.deep.equal info
         done()
 
   describe '#My()', ->
@@ -112,7 +112,7 @@ describe 'ChatworkStreaming', ->
 
       api.get('/v1/my/status').reply 200, status
       bot.My().status (err, data) ->
-        data.should.deep.equal status
+        data.should.be.deep.equal status
         done()
 
     it 'should get my tasks', (done) ->
@@ -165,7 +165,7 @@ describe 'ChatworkStreaming', ->
     it 'should get contacts', (done) ->
       api.get('/v1/contacts').reply 200, contacts
       bot.Contacts (err, data) ->
-        data.should.deep.equal contacts
+        data.should.be.deep.equal contacts
         done()
 
   describe '#Rooms()', ->
@@ -191,7 +191,7 @@ describe 'ChatworkStreaming', ->
 
       api.get('/v1/rooms').reply 200, rooms
       bot.Rooms().show (err, data) ->
-        data.should.deep.equal rooms
+        data.should.be.deep.equal rooms
         done()
 
     it 'should create rooms', (done) ->
@@ -215,7 +215,7 @@ describe 'ChatworkStreaming', ->
         res
 
       bot.Rooms().create name, adminIds, opts, (err, data) ->
-        data.should.deep.equal res
+        data.should.be.deep.equal res
         done()
 
   describe '#Room()', ->
@@ -247,7 +247,7 @@ describe 'ChatworkStreaming', ->
 
       api.get(baseUrl).reply 200, res
       room.show (err, data) ->
-        data.should.deep.equal res
+        data.should.be.deep.equal res
         done()
 
     it 'should update a room', (done) ->
@@ -266,27 +266,27 @@ describe 'ChatworkStreaming', ->
         res
 
       room.update opts, (err, data) ->
-        data.should.deep.equal res
+        data.should.be.deep.equal res
         done()
 
     it 'should leave a room', (done) ->
       res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
-        body.should.equal "action_type=leave"
+        body.should.be.equal "action_type=leave"
         res
 
       room.leave (err, data) ->
-        data.should.deep.equal res
+        data.should.be.deep.equal res
         done()
 
     it 'should delete a room', (done) ->
       res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
-        body.should.equal "action_type=delete"
+        body.should.be.equal "action_type=delete"
         res
 
       room.delete (err, data) ->
-        data.should.deep.equal res
+        data.should.be.deep.equal res
         done()
 
     describe 'Members', ->
@@ -306,7 +306,7 @@ describe 'ChatworkStreaming', ->
         ]
         api.get("#{baseUrl}/members").reply 200, res
         room.Members().show (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
       it 'should update members', (done) ->
@@ -328,7 +328,7 @@ describe 'ChatworkStreaming', ->
           res
 
         room.Members().update adminIds, opts, (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
     describe '#Messages()', ->
@@ -349,16 +349,19 @@ describe 'ChatworkStreaming', ->
 
         api.get("#{baseUrl}/messages").reply 200, res
         room.Messages().show (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
       it 'should create a message', (done) ->
         message = 'This is a test message'
         res = message_id: 123
 
-        api.post("#{baseUrl}/messages").reply 200, res
+        api.post("#{baseUrl}/messages").reply 200, (url, body) ->
+          body.should.be.equal "body=#{message}"
+          res
+
         room.Messages().create message, (err, data) ->
-          data.should.have.property 'message_id'
+          data.should.be.deep.equal res
           done()
 
       it 'should listen messages', (done) ->
@@ -383,7 +386,7 @@ describe 'ChatworkStreaming', ->
 
         api.get("#{baseUrl}/messages/#{messageId}").reply 200, res
         room.Message(messageId).show (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
     describe '#Tasks()', ->
@@ -424,7 +427,7 @@ describe 'ChatworkStreaming', ->
           res
 
         room.Tasks().show opts, (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
       it 'should create a task', (done) ->
@@ -442,7 +445,7 @@ describe 'ChatworkStreaming', ->
           res
 
         room.Tasks().create text, toIds, opts, (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
     describe '#Task()', ->
@@ -468,7 +471,7 @@ describe 'ChatworkStreaming', ->
 
         api.get("#{baseUrl}/tasks/#{taskId}").reply 200, res
         room.Task(taskId).show (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
     describe '#Files()', ->
@@ -490,12 +493,11 @@ describe 'ChatworkStreaming', ->
         ]
 
         api.get("#{baseUrl}/files").reply 200, (url, body) ->
-          p0 = body.split '='
-          p0[1].should.equal "#{opts.account}"
+          body.should.be.equal "account_id=#{opts.account}"
           res
 
         room.Files().show opts, (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
     describe '#File()', ->
@@ -517,12 +519,11 @@ describe 'ChatworkStreaming', ->
           upload_time: 1384414750
 
         api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
-          p0 = body.split '='
-          p0[1].should.equal "#{opts.createUrl}"
+          body.should.be.equal "create_download_url=#{opts.createUrl}"
           res
 
         room.File(fileId).show opts, (err, data) ->
-          data.should.deep.equal res
+          data.should.be.deep.equal res
           done()
 
 class Helper
