@@ -323,40 +323,64 @@ describe 'ChatworkStreaming', ->
       beforeEach ->
         nock.cleanAll()
 
-      it 'should show tasks', (done) ->
-        opts =
-          account: '101'
-          assignedBy: '78'
-          status: "done"
+      describe '#show()', ->
+        it 'should show tasks', (done) ->
+          api.get("#{baseUrl}/tasks").reply 200, fixtures.room.tasks.get
+          room.Tasks().show {}, (err, data) ->
+            data.should.be.deep.equal fixtures.room.tasks.get
+            done()
 
-        api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
-          params = Helper.parseBody body
-          params.should.be.deep.equal
-            account_id: opts.account
-            assigned_by_account_id: opts.assignedBy
-            status: opts.status
-          fixtures.room.tasks.get
+        it 'should show tasks when no opts', (done) ->
+          api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
+            body.should.be.equal ""
+            done()
+          room.Tasks().show {}, null
 
-        room.Tasks().show opts, (err, data) ->
-          data.should.be.deep.equal fixtures.room.tasks.get
-          done()
+        it 'should show tasks when full opts', (done) ->
+          opts =
+            account: '101'
+            assignedBy: '78'
+            status: "done"
 
-      it 'should create a task', (done) ->
-        text = "Buy milk"
-        toIds = [1, 3, 6]
-        opts = limit: 1385996399
+          api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
+            params = Helper.parseBody body
+            params.should.be.deep.equal
+              account_id: opts.account
+              assigned_by_account_id: opts.assignedBy
+              status: opts.status
+            done()
+          room.Tasks().show opts, null
 
-        api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
-          params = Helper.parseBody body
-          params.should.be.deep.equal
-            body: text
-            limit: "#{opts.limit}"
-            to_ids: toIds.join ','
-          fixtures.room.tasks.post
+      describe '#create()', ->
+        it 'should create a task', (done) ->
+          text = "Buy milk"
+          toIds = [1, 3, 6]
+          api.post("#{baseUrl}/tasks").reply 200, fixtures.room.tasks.post
+          room.Tasks().create text, toIds, {}, (err, data) ->
+            data.should.be.deep.equal fixtures.room.tasks.post
+            done()
 
-        room.Tasks().create text, toIds, opts, (err, data) ->
-          data.should.be.deep.equal fixtures.room.tasks.post
-          done()
+        it 'should create a task when no opts', (done) ->
+          text = "Buy milk"
+          toIds = [1, 3, 6]
+          api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
+            body.should.be.equal "body=#{text}&to_ids=#{toIds.join ','}"
+            done()
+          room.Tasks().create text, toIds, {}, null
+
+        it 'should create a task when full opts', (done) ->
+          text = "Buy milk"
+          toIds = [1, 3, 6]
+          opts = limit: 1385996399
+
+          api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
+            params = Helper.parseBody body
+            params.should.be.deep.equal
+              body: text
+              limit: "#{opts.limit}"
+              to_ids: toIds.join ','
+            done()
+          room.Tasks().create text, toIds, opts, null
 
     describe '#Task()', ->
       beforeEach ->

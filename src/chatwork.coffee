@@ -154,18 +154,20 @@ class ChatworkStreaming extends EventEmitter
         @get "#{baseUrl}/messages/#{mid}", "", callback
 
     Tasks: =>
-      # TODO: support optional params
-      show: (options, callback) =>
-        body = "account_id=#{options.account}" \
-          + "&assigned_by_account_id=#{options.assignedBy}" \
-          + "&status=#{options.status}"
+      show: (opts, callback) =>
+        params = []
+        params.push "account_id=#{opts.account}" if opts.account?
+        params.push "assigned_by_account_id=#{opts.assignedBy}" if opts.assignedBy?
+        params.push "status=#{opts.status}" if opts.status?
+        body = params.join '&'
         @get "#{baseUrl}/tasks", body, callback
 
-      # TODO: support optional params
-      create: (text, toIds, options, callback) =>
-        body = "body=#{text}" \
-          + "&to_ids=#{toIds.join ','}" \
-          + "&limit=#{options.limit}"
+      create: (text, toIds, opts, callback) =>
+        params = []
+        params.push "body=#{text}"
+        params.push "to_ids=#{toIds.join ','}"
+        params.push "limit=#{opts.limit}" if opts.limit?
+        body = params.join '&'
         @post "#{baseUrl}/tasks", body, callback
 
     Task: (tid) =>
