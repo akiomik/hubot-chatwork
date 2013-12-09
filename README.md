@@ -14,7 +14,7 @@ A Hubot adapter for chatwork.
 ```javascript
 "dependencies": {
       // other packages...
-      "hubot-chatwork": "0.0.2"
+      "hubot-chatwork": "0.0.3"
 }
 ```
 
