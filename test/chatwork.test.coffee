@@ -1,6 +1,7 @@
 should = (require 'chai').should()
 nock = require 'nock'
 Chatwork = require '../src/chatwork'
+fixtures = require './fixtures'
 
 token = 'deadbeef'
 roomId = '10'
@@ -71,30 +72,10 @@ describe 'ChatworkStreaming', ->
     beforeEach ->
       nock.cleanAll()
 
-    info =
-      account_id: 123
-      room_id: 322
-      name: 'John Smith'
-      chatwork_id: 'tarochatworkid'
-      organization_id: 101
-      organization_name: 'Hello Company'
-      department: 'Marketing'
-      title: 'CMO'
-      url: 'http://mycompany.com'
-      introduction: 'Self Introduction'
-      mail: 'taro@example.com'
-      tel_organization: 'XXX-XXXX-XXXX'
-      tel_extension: 'YYY-YYYY-YYYY'
-      tel_mobile: 'ZZZ-ZZZZ-ZZZZ'
-      skype: 'myskype_id'
-      facebook: 'myfacebook_id'
-      twitter: 'mytwitter_id'
-      avatar_image_url: 'https://example.com/abc.png'
-
     it 'should get own informations', (done) ->
-      api.get('/v1/me').reply 200, info
+      api.get('/v1/me').reply 200, fixtures.me.get
       bot.Me (err, data) ->
-        data.should.be.deep.equal info
+        data.should.be.deep.equal fixtures.me.get
         done()
 
   describe '#My()', ->
@@ -102,36 +83,12 @@ describe 'ChatworkStreaming', ->
       nock.cleanAll()
 
     it 'should get my status', (done) ->
-      status =
-        unread_room_num: 2
-        mention_room_num: 1
-        mytask_room_num: 3
-        unread_num: 12
-        mention_num: 1
-        mytask_num: 8
-
-      api.get('/v1/my/status').reply 200, status
+      api.get('/v1/my/status').reply 200, fixtures.my.status.get
       bot.My().status (err, data) ->
-        data.should.be.deep.equal status
+        data.should.be.deep.equal fixtures.my.status.get
         done()
 
     it 'should get my tasks', (done) ->
-      tasks = [
-        task_id: 3
-        room:
-          room_id: 5
-          name: "Group Chat Name"
-          icon_path: "https://example.com/ico_group.png"
-        assigned_by_account:
-          account_id: 456
-          name: "Anna"
-          avatar_image_url: "https://example.com/def.png"
-        message_id: 13
-        body: "buy milk"
-        limit_time: 1384354799
-        status: "open"
-      ]
-
       opts =
         assignedBy: 78
         status: 'done'
@@ -141,31 +98,20 @@ describe 'ChatworkStreaming', ->
         params.should.be.deep.equal
           assigned_by_account_id: "#{opts.assignedBy}"
           status: opts.status
-        tasks
+        fixtures.my.tasks.get
 
       bot.My().tasks opts, (err, data) ->
-        data.should.be.deep.equal tasks
+        data.should.be.deep.equal fixtures.my.tasks.get
         done()
 
   describe '#Contacts()', ->
     beforeEach ->
       nock.cleanAll()
 
-    contacts = [
-      account_id: 123
-      room_id: 322
-      name: "John Smith"
-      chatwork_id: "tarochatworkid"
-      organization_id: 101
-      organization_name: "Hello Company"
-      department: "Marketing"
-      avatar_image_url: "https://example.com/abc.png"
-    ]
-
     it 'should get contacts', (done) ->
-      api.get('/v1/contacts').reply 200, contacts
+      api.get('/v1/contacts').reply 200, fixtures.contacts.get
       bot.Contacts (err, data) ->
-        data.should.be.deep.equal contacts
+        data.should.be.deep.equal fixtures.contacts.get
         done()
 
   describe '#Rooms()', ->
@@ -173,29 +119,12 @@ describe 'ChatworkStreaming', ->
       nock.cleanAll()
 
     it 'should show rooms', (done) ->
-      rooms = [
-        room_id: 123
-        name: "Group Chat Name"
-        type: "group"
-        role: "admin"
-        sticky: false
-        unread_num: 10
-        mention_num: 1
-        mytask_num: 0
-        message_num: 122
-        file_num: 10
-        task_num: 17
-        icon_path: "https://example.com/ico_group.png"
-        last_update_time: 1298905200
-      ]
-
-      api.get('/v1/rooms').reply 200, rooms
+      api.get('/v1/rooms').reply 200, fixtures.rooms.get
       bot.Rooms().show (err, data) ->
-        data.should.be.deep.equal rooms
+        data.should.be.deep.equal fixtures.rooms.get
         done()
 
     it 'should create rooms', (done) ->
-      res = roomId: 1234
       name = 'Website renewal project'
       adminIds = [123, 542, 1001]
       opts =
@@ -212,10 +141,10 @@ describe 'ChatworkStreaming', ->
           members_member_ids: opts.memberIds.join ','
           members_readonly_ids: opts.roIds.join ','
           name: name
-        res
+        fixtures.rooms.post
 
       bot.Rooms().create name, adminIds, opts, (err, data) ->
-        data.should.be.deep.equal res
+        data.should.be.deep.equal fixtures.rooms.post
         done()
 
   describe '#Room()', ->
@@ -229,29 +158,12 @@ describe 'ChatworkStreaming', ->
       nock.cleanAll()
 
     it 'should show a room', (done) ->
-      res =
-        room_id: 123
-        name: "Group Chat Name"
-        type: "group"
-        role: "admin"
-        sticky: false
-        unread_num: 10
-        mention_num: 1
-        mytask_num: 0
-        message_num: 122
-        file_num: 10
-        task_num: 17
-        icon_path: "https://example.com/ico_group.png"
-        last_update_time: 1298905200
-        description: "room description text"
-
-      api.get(baseUrl).reply 200, res
+      api.get(baseUrl).reply 200, fixtures.room.get
       room.show (err, data) ->
-        data.should.be.deep.equal res
+        data.should.be.deep.equal fixtures.room.get
         done()
 
     it 'should update a room', (done) ->
-      res = room_id: 1234
       opts =
         desc: 'group chat description'
         icon: 'meeting'
@@ -263,30 +175,28 @@ describe 'ChatworkStreaming', ->
           description: opts.desc
           icon_preset: opts.icon
           name: opts.name
-        res
+        fixtures.room.put
 
       room.update opts, (err, data) ->
-        data.should.be.deep.equal res
+        data.should.be.deep.equal fixtures.room.put
         done()
 
     it 'should leave a room', (done) ->
-      res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
         body.should.be.equal "action_type=leave"
-        res
+        fixtures.room.delete
 
       room.leave (err, data) ->
-        data.should.be.deep.equal res
+        data.should.be.deep.equal fixtures.room.delete
         done()
 
     it 'should delete a room', (done) ->
-      res = {}
       api.delete(baseUrl).reply 200, (url, body) ->
         body.should.be.equal "action_type=delete"
-        res
+        fixtures.room.delete
 
       room.delete (err, data) ->
-        data.should.be.deep.equal res
+        data.should.be.deep.equal fixtures.room.delete
         done()
 
     describe 'Members', ->
@@ -294,19 +204,9 @@ describe 'ChatworkStreaming', ->
         nock.cleanAll()
 
       it 'should show members', (done) ->
-        res = [
-          account_id: 123
-          role: "member"
-          name: "John Smith"
-          chatwork_id: "tarochatworkid"
-          organization_id: 101
-          organization_name: "Hello Company"
-          department: "Marketing"
-          avatar_image_url: "https://example.com/abc.png"
-        ]
-        api.get("#{baseUrl}/members").reply 200, res
+        api.get("#{baseUrl}/members").reply 200, fixtures.room.members.get
         room.Members().show (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.members.get
           done()
 
       it 'should update members', (done) ->
@@ -314,10 +214,6 @@ describe 'ChatworkStreaming', ->
         opts =
           memberIds: [21, 344]
           roIds: [15, 103]
-        res =
-          admin: [123, 542, 1001]
-          member: [10, 103]
-          readonly: [6, 11]
 
         api.put("#{baseUrl}/members").reply 200, (url, body) ->
           params = Helper.parseBody body
@@ -325,10 +221,10 @@ describe 'ChatworkStreaming', ->
             members_admin_ids: adminIds.join ','
             members_member_ids: opts.memberIds.join ','
             members_readonly_ids: opts.roIds.join ','
-          res
+          fixtures.room.members.put
 
         room.Members().update adminIds, opts, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.members.put
           done()
 
     describe '#Messages()', ->
@@ -336,32 +232,19 @@ describe 'ChatworkStreaming', ->
         nock.cleanAll()
 
       it 'should get messages', (done) ->
-        res = [
-          message_id: 5
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/ico_avatar.png"
-          body: "Hello Chatwork!"
-          send_time: 1384242850
-          update_time: 0
-        ]
-
-        api.get("#{baseUrl}/messages").reply 200, res
+        api.get("#{baseUrl}/messages").reply 200, fixtures.room.messages.get
         room.Messages().show (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.messages.get
           done()
 
       it 'should create a message', (done) ->
         message = 'This is a test message'
-        res = message_id: 123
-
         api.post("#{baseUrl}/messages").reply 200, (url, body) ->
           body.should.be.equal "body=#{message}"
-          res
+          fixtures.room.messages.post
 
         room.Messages().create message, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.messages.post
           done()
 
       it 'should listen messages', (done) ->
@@ -374,16 +257,7 @@ describe 'ChatworkStreaming', ->
 
       it 'should show a message', (done) ->
         messageId = 5
-        res =
-          message_id: 5
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/ico_avatar.png"
-          body: "Hello Chatwork!"
-          send_time: 1384242850
-          update_time: 0
-
+        res = fixtures.room.message.get
         api.get("#{baseUrl}/messages/#{messageId}").reply 200, res
         room.Message(messageId).show (err, data) ->
           data.should.be.deep.equal res
@@ -398,21 +272,6 @@ describe 'ChatworkStreaming', ->
           account: '101'
           assignedBy: '78'
           status: "done"
-        res = [
-          task_id: 3
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/abc.png"
-          assigned_by_account:
-            account_id: 456
-            name: "Anna"
-            avatar_image_url: "https://example.com/def.png"
-          message_id: 13
-          body: "buy milk"
-          limit_time: 1384354799
-          status: "open"
-        ]
 
         api.get("#{baseUrl}/tasks").reply 200, (url, body) ->
           params = Helper.parseBody body
@@ -420,17 +279,16 @@ describe 'ChatworkStreaming', ->
             account_id: opts.account
             assigned_by_account_id: opts.assignedBy
             status: opts.status
-          res
+          fixtures.room.tasks.get
 
         room.Tasks().show opts, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.tasks.get
           done()
 
       it 'should create a task', (done) ->
         text = "Buy milk"
         toIds = [1, 3, 6]
         opts = limit: 1385996399
-        res = task_ids: [123, 124]
 
         api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
           params = Helper.parseBody body
@@ -438,10 +296,10 @@ describe 'ChatworkStreaming', ->
             body: text
             limit: "#{opts.limit}"
             to_ids: toIds.join ','
-          res
+          fixtures.room.tasks.post
 
         room.Tasks().create text, toIds, opts, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.tasks.post
           done()
 
     describe '#Task()', ->
@@ -450,24 +308,9 @@ describe 'ChatworkStreaming', ->
 
       it 'should show a task', (done) ->
         taskId = 3
-        res =
-          task_id: 3
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/abc.png"
-          assigned_by_account:
-            account_id: 456
-            name: "Anna"
-            avatar_image_url: "https://example.com/def.png"
-          message_id: 13
-          body: "buy milk"
-          limit_time: 1384354799
-          status: "open"
-
-        api.get("#{baseUrl}/tasks/#{taskId}").reply 200, res
+        api.get("#{baseUrl}/tasks/#{taskId}").reply 200, fixtures.room.task.get
         room.Task(taskId).show (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.task.get
           done()
 
     describe '#Files()', ->
@@ -476,24 +319,13 @@ describe 'ChatworkStreaming', ->
 
       it 'should show files', (done) ->
         opts = account: 101
-        res = [
-          file_id: 3
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/ico_avatar.png"
-          message_id: 22
-          filename: "README.md"
-          filesize: 2232
-          upload_time: 1384414750
-        ]
 
         api.get("#{baseUrl}/files").reply 200, (url, body) ->
           body.should.be.equal "account_id=#{opts.account}"
-          res
+          fixtures.room.files.get
 
         room.Files().show opts, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.files.get
           done()
 
     describe '#File()', ->
@@ -503,23 +335,13 @@ describe 'ChatworkStreaming', ->
       it 'should show a file', (done) ->
         fileId = 3
         opts = createUrl: true
-        res =
-          file_id: 3
-          account:
-            account_id: 123
-            name: "Bob"
-            avatar_image_url: "https://example.com/ico_avatar.png"
-          message_id: 22
-          filename: "README.md"
-          filesize: 2232
-          upload_time: 1384414750
 
         api.get("#{baseUrl}/files/#{fileId}").reply 200, (url, body) ->
           body.should.be.equal "create_download_url=#{opts.createUrl}"
-          res
+          fixtures.room.file.get
 
         room.File(fileId).show opts, (err, data) ->
-          data.should.be.deep.equal res
+          data.should.be.deep.equal fixtures.room.file.get
           done()
 
 class Helper
