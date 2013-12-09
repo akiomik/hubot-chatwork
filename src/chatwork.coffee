@@ -67,10 +67,10 @@ class ChatworkStreaming extends EventEmitter
       @get "/my/status", "", callback
 
     tasks: (opts, callback) =>
-      body = ""
-      body += "assigned_by_account_id=#{opts.assignedBy}" if opts.assignedBy?
-      body += "&" if opts.assignedBy? and opts.status?
-      body += "status=#{opts.status}" if opts.status?
+      params = []
+      params.push "assigned_by_account_id=#{opts.assignedBy}" if opts.assignedBy?
+      params.push "status=#{opts.status}" if opts.status?
+      body = params.join '&'
       @get "/my/tasks", body, callback
 
   Contacts: (callback) =>
@@ -81,11 +81,13 @@ class ChatworkStreaming extends EventEmitter
       @get "/rooms", "", callback
 
     create: (name, adminIds, opts, callback) =>
-      body = "name=#{name}&members_admin_ids=#{adminIds.join ','}"
-      body += "&description=#{opts.desc}" if opts.desc?
-      body += "&icon_preset=#{opts.icon}" if opts.icon?
-      body += "&members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
-      body += "&members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
+      params.push "name=#{name}"
+      params.push "members_admin_ids=#{adminIds.join ','}"
+      params.push "description=#{opts.desc}" if opts.desc?
+      params.push "icon_preset=#{opts.icon}" if opts.icon?
+      params.push "members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
+      params.push "members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
+      body = params.join '&'
       @post "/rooms", body, callback
 
   Room: (id) =>
