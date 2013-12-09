@@ -97,11 +97,12 @@ class ChatworkStreaming extends EventEmitter
     show: (callback) =>
       @get "#{baseUrl}", "", callback
 
-    # TODO: support optional params
-    update: (options, callback) =>
-      body = "description=#{options.desc}" \
-        + "&icon_preset=#{options.icon}" \
-        + "&name=#{options.name}"
+    update: (opts, callback) =>
+      params = []
+      params.push "description=#{opts.desc}" if opts.desc?
+      params.push "icon_preset=#{opts.icon}" if opts.icon?
+      params.push "name=#{opts.name}" if opts.name?
+      body = params.join '&'
       @put "#{baseUrl}", body, callback
 
     leave: (callback) =>

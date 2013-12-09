@@ -183,47 +183,60 @@ describe 'ChatworkStreaming', ->
     beforeEach ->
       nock.cleanAll()
 
-    it 'should show a room', (done) ->
-      api.get(baseUrl).reply 200, fixtures.room.get
-      room.show (err, data) ->
-        data.should.be.deep.equal fixtures.room.get
-        done()
+    describe '#show()', ->
+      it 'should show a room', (done) ->
+        api.get(baseUrl).reply 200, fixtures.room.get
+        room.show (err, data) ->
+          data.should.be.deep.equal fixtures.room.get
+          done()
 
-    it 'should update a room', (done) ->
-      opts =
-        desc: 'group chat description'
-        icon: 'meeting'
-        name: 'Website renewal project'
+    describe '#update()', ->
+      it 'should update a room', (done) ->
+        api.put(baseUrl).reply 200, fixtures.room.put
+        room.update {}, (err, data) ->
+          data.should.be.deep.equal fixtures.room.put
+          done()
 
-      api.put(baseUrl).reply 200, (url, body) ->
-        params = Helper.parseBody body
-        params.should.be.deep.equal
-          description: opts.desc
-          icon_preset: opts.icon
-          name: opts.name
-        fixtures.room.put
+      it 'should update a room when no opts', (done) ->
+        api.put(baseUrl).reply 200, (url, body) ->
+          body.should.be.equal ""
+          done()
+        room.update {}, null
 
-      room.update opts, (err, data) ->
-        data.should.be.deep.equal fixtures.room.put
-        done()
+      it 'should update a room when full opts', (done) ->
+        opts =
+          desc: 'group chat description'
+          icon: 'meeting'
+          name: 'Website renewal project'
 
-    it 'should leave a room', (done) ->
-      api.delete(baseUrl).reply 200, (url, body) ->
-        body.should.be.equal "action_type=leave"
-        fixtures.room.delete
+        api.put(baseUrl).reply 200, (url, body) ->
+          params = Helper.parseBody body
+          params.should.be.deep.equal
+            description: opts.desc
+            icon_preset: opts.icon
+            name: opts.name
+          done()
+        room.update opts, null
 
-      room.leave (err, data) ->
-        data.should.be.deep.equal fixtures.room.delete
-        done()
+    describe '#leave()', ->
+      it 'should leave a room', (done) ->
+        api.delete(baseUrl).reply 200, (url, body) ->
+          body.should.be.equal "action_type=leave"
+          fixtures.room.delete
 
-    it 'should delete a room', (done) ->
-      api.delete(baseUrl).reply 200, (url, body) ->
-        body.should.be.equal "action_type=delete"
-        fixtures.room.delete
+        room.leave (err, data) ->
+          data.should.be.deep.equal fixtures.room.delete
+          done()
 
-      room.delete (err, data) ->
-        data.should.be.deep.equal fixtures.room.delete
-        done()
+    describe '#delete()', ->
+      it 'should delete a room', (done) ->
+        api.delete(baseUrl).reply 200, (url, body) ->
+          body.should.be.equal "action_type=delete"
+          fixtures.room.delete
+
+        room.delete (err, data) ->
+          data.should.be.deep.equal fixtures.room.delete
+          done()
 
     describe 'Members', ->
       beforeEach ->
