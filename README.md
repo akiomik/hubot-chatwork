@@ -37,3 +37,7 @@ bin/hubot -a chatwork
 
 ## License
 The MIT License. See `LICENSE` file.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/akiomik/hubot-chatwork/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
