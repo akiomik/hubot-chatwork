@@ -13,14 +13,21 @@ process.env.HUBOT_CHATWORK_API_RATE = apiRate
 class LoggerMock
   error: (message) -> new Error message
 
+class BrainMock
+  userForId: (id, options) ->
+    id: id
+    user: options
+
 class RobotMock
   constructor: ->
     @logger = new LoggerMock
+    @brain = new BrainMock
 
-robot = new RobotMock
+  receive: ->
 
 describe 'Chatwork', ->
   api = null
+  robot = null
   chatwork = null
 
   beforeEach ->
@@ -30,34 +37,48 @@ describe 'Chatwork', ->
       .matchHeader('X-ChatWorkToken', token)
       .get("/v1/rooms/#{roomId}/messages")
       .reply 200, fixtures.room.messages.get
+
+    robot = new RobotMock()
     chatwork = Chatwork.use robot
 
-  it 'should run', (done) ->
-    api.get("/v1/rooms/#{roomId}/messages").reply 200, -> done()
-    chatwork.run()
+  describe '#run()', ->
+    it 'should call api', (done) ->
+      nock.cleanAll()
+      api = (nock 'https://api.chatwork.com')
+        .matchHeader('X-ChatWorkToken', token)
+        .get("/v1/rooms/#{roomId}/messages")
+        .reply 200, -> done()
+      chatwork.run()
 
-  it 'should send message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
+    it 'should call robot.receive on message', (done) ->
+      chatwork.robot.receive = (message) -> done()
+      chatwork.run()
 
-    envelope = room: roomId
-    message = "This is a test message"
-    chatwork.run()
-    chatwork.send envelope, message
+  describe '#post()', ->
+    it 'should send message', (done) ->
+      api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
 
-  it 'should reply message', (done) ->
-    api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
+      envelope = room: roomId
+      message = "This is a test message"
+      chatwork.run()
+      chatwork.send envelope, message
 
-    envelope =
-      room: roomId
-      user:
-        id: 123
-        name: "Bob"
-    message = "This is a test message"
-    chatwork.run()
-    chatwork.reply envelope, message
+  describe '#reply()', ->
+    it 'should reply message', (done) ->
+      api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
+
+      envelope =
+        room: roomId
+        user:
+          id: 123
+          name: "Bob"
+      message = "This is a test message"
+      chatwork.run()
+      chatwork.reply envelope, message
 
 describe 'ChatworkStreaming', ->
   api = null
+  robot = null
   bot = null
 
   beforeEach ->
@@ -68,6 +89,7 @@ describe 'ChatworkStreaming', ->
       .get("/v1/rooms/#{roomId}/messages")
       .reply 200, fixtures.room.messages.get
 
+    robot = new RobotMock()
     chatwork = Chatwork.use robot
     chatwork.run()
     bot = chatwork.bot
@@ -294,7 +316,11 @@ describe 'ChatworkStreaming', ->
 
       describe '#listen()', ->
         it 'should listen messages', (done) ->
-          api.get("#{baseUrl}/messages").reply 200, -> done()
+          nock.cleanAll()
+          api = (nock 'https://api.chatwork.com')
+            .matchHeader('X-ChatWorkToken', token)
+            .get("#{baseUrl}/messages")
+            .reply 200, -> done()
           room.Messages().listen()
 
     describe '#Message()', ->
