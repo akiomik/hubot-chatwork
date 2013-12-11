@@ -19,14 +19,18 @@ class RobotMock
 
 robot = new RobotMock
 
-api = (nock 'https://api.chatwork.com').matchHeader 'X-ChatWorkToken', token
-
 describe 'Chatwork', ->
+  api = null
   chatwork = null
 
   beforeEach ->
-    chatwork = Chatwork.use robot
     nock.cleanAll()
+    api = (nock 'https://api.chatwork.com')
+      .persist()
+      .matchHeader('X-ChatWorkToken', token)
+      .get("/v1/rooms/#{roomId}/messages")
+      .reply 200, fixtures.room.messages.get
+    chatwork = Chatwork.use robot
 
   it 'should run', (done) ->
     api.get("/v1/rooms/#{roomId}/messages").reply 200, -> done()
@@ -53,9 +57,17 @@ describe 'Chatwork', ->
     chatwork.reply envelope, message
 
 describe 'ChatworkStreaming', ->
+  api = null
   bot = null
 
   beforeEach ->
+    nock.cleanAll()
+    api = (nock 'https://api.chatwork.com')
+      .persist()
+      .matchHeader('X-ChatWorkToken', token)
+      .get("/v1/rooms/#{roomId}/messages")
+      .reply 200, fixtures.room.messages.get
+
     chatwork = Chatwork.use robot
     chatwork.run()
     bot = chatwork.bot
@@ -69,9 +81,6 @@ describe 'ChatworkStreaming', ->
     bot.should.have.property 'host'
 
   describe '#Me()', ->
-    beforeEach ->
-      nock.cleanAll()
-
     it 'should get own informations', (done) ->
       api.get('/v1/me').reply 200, fixtures.me.get
       bot.Me (err, data) ->
@@ -79,9 +88,6 @@ describe 'ChatworkStreaming', ->
         done()
 
   describe '#My()', ->
-    beforeEach ->
-      nock.cleanAll()
-
     describe '#status', ->
       it 'should get my status', (done) ->
         api.get('/v1/my/status').reply 200, fixtures.my.status.get
@@ -115,9 +121,6 @@ describe 'ChatworkStreaming', ->
         bot.My().tasks opts, null
 
   describe '#Contacts()', ->
-    beforeEach ->
-      nock.cleanAll()
-
     it 'should get contacts', (done) ->
       api.get('/v1/contacts').reply 200, fixtures.contacts.get
       bot.Contacts (err, data) ->
@@ -125,9 +128,6 @@ describe 'ChatworkStreaming', ->
         done()
 
   describe '#Rooms()', ->
-    beforeEach ->
-      nock.cleanAll()
-
     describe '#show()', ->
       it 'should show rooms', (done) ->
         api.get('/v1/rooms').reply 200, fixtures.rooms.get
@@ -179,9 +179,6 @@ describe 'ChatworkStreaming', ->
 
     before ->
       room = bot.Room(roomId)
-
-    beforeEach ->
-      nock.cleanAll()
 
     describe '#show()', ->
       it 'should show a room', (done) ->
@@ -239,9 +236,6 @@ describe 'ChatworkStreaming', ->
           done()
 
     describe 'Members', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should show members', (done) ->
           api.get("#{baseUrl}/members").reply 200, fixtures.room.members.get
@@ -280,9 +274,6 @@ describe 'ChatworkStreaming', ->
           room.Members().update adminIds, opts, null
 
     describe '#Messages()', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should get messages', (done) ->
           api.get("#{baseUrl}/messages").reply 200, fixtures.room.messages.get
@@ -307,9 +298,6 @@ describe 'ChatworkStreaming', ->
           room.Messages().listen()
 
     describe '#Message()', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should show a message', (done) ->
           messageId = 5
@@ -320,9 +308,6 @@ describe 'ChatworkStreaming', ->
             done()
 
     describe '#Tasks()', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should show tasks', (done) ->
           api.get("#{baseUrl}/tasks").reply 200, fixtures.room.tasks.get
@@ -383,9 +368,6 @@ describe 'ChatworkStreaming', ->
           room.Tasks().create text, toIds, opts, null
 
     describe '#Task()', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should show a task', (done) ->
           taskId = 3
@@ -396,9 +378,6 @@ describe 'ChatworkStreaming', ->
             done()
 
     describe '#Files()', ->
-      beforeEach ->
-        nock.cleanAll()
-
       describe '#show()', ->
         it 'should show files', (done) ->
           api.get("#{baseUrl}/files").reply 200, fixtures.room.files.get
@@ -422,9 +401,6 @@ describe 'ChatworkStreaming', ->
 
     describe '#File()', ->
       fileId = 3
-
-      beforeEach ->
-        nock.cleanAll()
 
       describe '#show()', ->
         it 'should show a file', (done) ->
