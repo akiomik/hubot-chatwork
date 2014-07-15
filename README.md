@@ -34,5 +34,14 @@ export HUBOT_CHATWORK_API_RATE="350"   # request per hour
 bin/hubot -a chatwork
 ```
 
+## Note
+
+`GET /rooms/{room_id}/messages` API is NOT provided yet from Chatwork.
+
+* http://developer.chatwork.com/ja/endpoint_rooms.html#GET-rooms-room_id-messages
+
+So Chatwork API will return `501` error response.
+
+
 ## License
 The MIT License. See `LICENSE` file.
