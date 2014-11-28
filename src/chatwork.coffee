@@ -204,6 +204,7 @@ class ChatworkStreaming extends EventEmitter
     headers =
       "Host"           : @host
       "X-ChatWorkToken": @token
+      "Content-Type"   : 'application/x-www-form-urlencoded'
 
     options =
       "agent"  : false
