@@ -13,7 +13,7 @@ A Hubot adapter for chatwork.
 1. Add `hubot-chatwork` to dependencies in your hubot's `package.json`.
   ```javascript
 "dependencies": {
-      "hubot-chatwork": "0.0.3"
+      "hubot-chatwork": "0.0.4"
 }
   ```
 
