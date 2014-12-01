@@ -11,28 +11,28 @@ A Hubot adapter for chatwork.
 ## Installation
 
 1. Add `hubot-chatwork` to dependencies in your hubot's `package.json`.
-```javascript
+  ```javascript
 "dependencies": {
       "hubot-chatwork": "0.0.3"
 }
-```
+  ```
 
 2. Install `hubot-chatwork`.
-```sh
+  ```sh
 npm install
-```
+  ```
 
 3. Set environment variables.
-```sh
+  ```sh
 export HUBOT_CHATWORK_TOKEN="DEADBEEF" # see http://developer.chatwork.com/ja/authenticate.html
 export HUBOT_CHATWORK_ROOMS="123,456"   # comma separated
 export HUBOT_CHATWORK_API_RATE="350"   # request per hour
-```
+  ```
 
 4. Run hubot with chatwork adapter.
-```sh
+  ```sh
 bin/hubot -a chatwork
-```
+  ```
 
 ## Note
 
