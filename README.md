@@ -10,38 +10,22 @@ A Hubot adapter for chatwork.
 
 ## Installation
 
-1. Add `hubot-chatwork` to dependencies in your hubot's `package.json`.
-  ```javascript
-"dependencies": {
-      "hubot-chatwork": "0.0.5"
-}
-  ```
-
-2. Install `hubot-chatwork`.
+1. Install `hubot-chatwork`.
   ```sh
-npm install
+npm install hubot-chatwork --save
   ```
 
-3. Set environment variables.
+2. Set environment variables.
   ```sh
 export HUBOT_CHATWORK_TOKEN="DEADBEEF" # see http://developer.chatwork.com/ja/authenticate.html
 export HUBOT_CHATWORK_ROOMS="123,456"   # comma separated
 export HUBOT_CHATWORK_API_RATE="350"   # request per hour
   ```
 
-4. Run hubot with chatwork adapter.
+3. Run hubot with chatwork adapter.
   ```sh
 bin/hubot -a chatwork
   ```
-
-## Note
-
-`GET /rooms/{room_id}/messages` API is NOT provided yet from Chatwork.
-
-* http://developer.chatwork.com/ja/endpoint_rooms.html#GET-rooms-room_id-messages
-
-So Chatwork API will return `501` error response.
-
 
 ## License
 The MIT License. See `LICENSE` file.
