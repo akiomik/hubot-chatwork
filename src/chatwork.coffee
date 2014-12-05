@@ -134,20 +134,18 @@ class ChatworkStreaming extends EventEmitter
         @post "#{baseUrl}/messages", body, callback
 
       listen: =>
-        lastMessage = 0
-        setInterval =>
+        timeout = =>
           @Room(id).Messages().show (err, messages) =>
             for message in messages
-              if lastMessage < message.message_id
-                @emit 'message',
-                  id,
-                  message.message_id,
-                  message.account,
-                  message.body,
-                  message.send_time,
-                  message.update_time
-                lastMessage = message.message_id
-        , 1000 / (@rate / (60 * 60))
+              @emit 'message',
+                id,
+                message.message_id,
+                message.account,
+                message.body,
+                message.send_time,
+                message.update_time
+            setTimeout timeout, 1000 / (@rate / (60 * 60))
+        timeout()
 
     Message: (mid) =>
       show: (callback) =>
