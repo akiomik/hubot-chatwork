@@ -130,6 +130,7 @@ class ChatworkStreaming extends EventEmitter
         @get "#{baseUrl}/messages", "", callback
 
       create: (text, callback) =>
+        text = '[info]' + text + '[/info]'
         body = "body=#{text}"
         @post "#{baseUrl}/messages", body, callback
 
