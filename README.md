@@ -12,7 +12,8 @@ A Hubot adapter for chatwork.
 
 1. Install `hubot-chatwork`.
   ```sh
-npm install hubot-chatwork --save
+npm install -g yo generator-hubot
+yo hubot --adapter chatwork
   ```
 
 2. Set environment variables.
