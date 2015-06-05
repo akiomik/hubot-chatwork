@@ -3,10 +3,10 @@ hubot-chatwork
 
 A Hubot adapter for chatwork.
 
-[![Build Status](https://travis-ci.org/akiomik/hubot-chatwork.png?branch=master)](https://travis-ci.org/akiomik/hubot-chatwork)
-[![Coverage Status](https://coveralls.io/repos/akiomik/hubot-chatwork/badge.png?branch=master)](https://coveralls.io/r/akiomik/hubot-chatwork?branch=master)
-[![Dependency Status](https://gemnasium.com/akiomik/hubot-chatwork.png)](https://gemnasium.com/akiomik/hubot-chatwork)
-[![NPM version](https://badge.fury.io/js/hubot-chatwork.png)](http://badge.fury.io/js/hubot-chatwork)
+[![Build Status](https://travis-ci.org/akiomik/hubot-chatwork.svg?branch=master)](https://travis-ci.org/akiomik/hubot-chatwork)
+[![Coverage Status](https://coveralls.io/repos/akiomik/hubot-chatwork/badge.svg?branch=master)](https://coveralls.io/r/akiomik/hubot-chatwork?branch=master)
+[![Dependency Status](https://gemnasium.com/akiomik/hubot-chatwork.svg)](https://gemnasium.com/akiomik/hubot-chatwork)
+[![npm version](https://badge.fury.io/js/hubot-chatwork.svg)](http://badge.fury.io/js/hubot-chatwork)
 
 ## Installation
 
