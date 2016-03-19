@@ -25,9 +25,7 @@ class Chatwork extends Adapter
       apiRate: process.env.HUBOT_CHATWORK_API_RATE
 
     bot = new ChatworkStreaming(options, @robot)
-
-    for roomId in bot.rooms
-      bot.Room(roomId).Messages().listen()
+    bot.start() #start listening
 
     bot.on 'message', (roomId, id, account, body, sendAt, updatedAt) =>
       user = @robot.brain.userForId account.account_id,
@@ -35,7 +33,6 @@ class Chatwork extends Adapter
         avatarImageUrl: account.avatar_image_url
         room: roomId
       @receive new TextMessage user, body, id
-
     @bot = bot
 
     @emit 'connected'
@@ -94,6 +91,9 @@ class ChatworkStreaming extends EventEmitter
   Room: (id) =>
     baseUrl = "/rooms/#{id}"
 
+    roomId: =>
+      return id
+
     show: (callback) =>
       @get "#{baseUrl}", "", callback
 
@@ -134,18 +134,15 @@ class ChatworkStreaming extends EventEmitter
         @post "#{baseUrl}/messages", body, callback
 
       listen: =>
-        timeout = =>
-          @Room(id).Messages().show (err, messages) =>
-            for message in messages
-              @emit 'message',
-                id,
-                message.message_id,
-                message.account,
-                message.body,
-                message.send_time,
-                message.update_time
-            setTimeout timeout, 1000 / (@rate / (60 * 60))
-        timeout()
+        @Room(id).Messages().show (err, messages) =>
+          for message in messages
+            @emit 'message',
+              id,
+              message.message_id,
+              message.account,
+              message.body,
+              message.send_time,
+              message.update_time
 
     Message: (mid) =>
       show: (callback) =>
@@ -239,7 +236,20 @@ class ChatworkStreaming extends EventEmitter
         callback err, {}
 
     request.end body, 'binary'
-
     request.on "error", (err) ->
       logger.error "Chatwork request error: #{err}"
 
+  start: =>
+    timeout = =>
+      if (@rooms.length is 1) and (@rooms[0] is "0")
+        @get "/rooms", "", (err, obj) =>
+          for i in obj
+            r = @Room(i.room_id)
+            t = r.Messages().listen()
+        setTimeout timeout, 1000 / (@rate / (60 * 60))
+      else
+        for roomId in @rooms
+          r = @Room(roomId)
+          t = r.Messages().listen()
+        setTimeout timeout, 1000 / (@rate / (60 * 60))
+    timeout()
