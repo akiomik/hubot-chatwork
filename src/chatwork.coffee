@@ -82,12 +82,12 @@ class ChatworkStreaming extends EventEmitter
 
     create: (name, adminIds, opts, callback) =>
       params = []
-      params.push "name=#{name}"
-      params.push "members_admin_ids=#{adminIds.join ','}"
-      params.push "description=#{opts.desc}" if opts.desc?
+      params.push "name=#{encodeURIComponent name}"
+      params.push "members_admin_ids=#{encodeURIComponent adminIds.join ','}"
+      params.push "description=#{encodeURIComponent opts.desc}" if opts.desc?
       params.push "icon_preset=#{opts.icon}" if opts.icon?
-      params.push "members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
-      params.push "members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
+      params.push "members_member_ids=#{encodeURIComponent opts.memberIds.join ','}" if opts.memberIds?
+      params.push "members_readonly_ids=#{encodeURIComponent opts.roIds.join ','}" if opts.roIds?
       body = params.join '&'
       @post "/rooms", body, callback
 
@@ -99,9 +99,9 @@ class ChatworkStreaming extends EventEmitter
 
     update: (opts, callback) =>
       params = []
-      params.push "description=#{opts.desc}" if opts.desc?
+      params.push "description=#{encodeURIComponent opts.desc}" if opts.desc?
       params.push "icon_preset=#{opts.icon}" if opts.icon?
-      params.push "name=#{opts.name}" if opts.name?
+      params.push "name=#{encodeURIComponent opts.name}" if opts.name?
       body = params.join '&'
       @put "#{baseUrl}", body, callback
 
@@ -119,9 +119,9 @@ class ChatworkStreaming extends EventEmitter
 
       update: (adminIds, opts, callback) =>
         params = []
-        params.push "members_admin_ids=#{adminIds.join ','}"
-        params.push "members_member_ids=#{opts.memberIds.join ','}" if opts.memberIds?
-        params.push "members_readonly_ids=#{opts.roIds.join ','}" if opts.roIds?
+        params.push "members_admin_ids=#{encodeURIComponent adminIds.join ','}"
+        params.push "members_member_ids=#{encodeURIComponent opts.memberIds.join ','}" if opts.memberIds?
+        params.push "members_readonly_ids=#{encodeURIComponent opts.roIds.join ','}" if opts.roIds?
         body = params.join '&'
         @put "#{baseUrl}/members", body, callback
 
@@ -130,7 +130,7 @@ class ChatworkStreaming extends EventEmitter
         @get "#{baseUrl}/messages", "", callback
 
       create: (text, callback) =>
-        body = "body=#{text}"
+        body = "body=#{encodeURIComponent text}"
         @post "#{baseUrl}/messages", body, callback
 
       listen: =>
@@ -162,8 +162,8 @@ class ChatworkStreaming extends EventEmitter
 
       create: (text, toIds, opts, callback) =>
         params = []
-        params.push "body=#{text}"
-        params.push "to_ids=#{toIds.join ','}"
+        params.push "body=#{encodeURIComponent text}"
+        params.push "to_ids=#{encodeURIComponent toIds.join ','}"
         params.push "limit=#{opts.limit}" if opts.limit?
         body = params.join '&'
         @post "#{baseUrl}/tasks", body, callback
