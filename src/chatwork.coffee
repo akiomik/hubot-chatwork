@@ -242,4 +242,5 @@ class ChatworkStreaming extends EventEmitter
 
     request.on "error", (err) ->
       logger.error "Chatwork request error: #{err}"
+      callback err, {}
 
