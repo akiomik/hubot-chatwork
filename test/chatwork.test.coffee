@@ -35,7 +35,7 @@ describe 'Chatwork', ->
     api = (nock 'https://api.chatwork.com')
       .persist()
       .matchHeader('X-ChatWorkToken', token)
-      .get("/v1/rooms/#{roomId}/messages")
+      .get("/v2/rooms/#{roomId}/messages")
       .reply 200, fixtures.room.messages.get
 
     robot = new RobotMock()
@@ -47,7 +47,7 @@ describe 'Chatwork', ->
       (nock 'https://api.chatwork.com')
         .persist()
         .matchHeader('X-ChatWorkToken', token)
-        .get("/v1/rooms/#{roomId}/messages")
+        .get("/v2/rooms/#{roomId}/messages")
         .reply 200, -> done()
       chatwork.run()
 
@@ -57,7 +57,7 @@ describe 'Chatwork', ->
 
   describe '#post()', ->
     it 'should send message', (done) ->
-      api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
+      api.post("/v2/rooms/#{roomId}/messages").reply 200, -> done()
 
       envelope = room: roomId
       message = "This is a test message"
@@ -66,7 +66,7 @@ describe 'Chatwork', ->
 
   describe '#reply()', ->
     it 'should reply message', (done) ->
-      api.post("/v1/rooms/#{roomId}/messages").reply 200, -> done()
+      api.post("/v2/rooms/#{roomId}/messages").reply 200, -> done()
 
       envelope =
         room: roomId
@@ -87,7 +87,7 @@ describe 'ChatworkStreaming', ->
     api = (nock 'https://api.chatwork.com')
       .persist()
       .matchHeader('X-ChatWorkToken', token)
-      .get("/v1/rooms/#{roomId}/messages")
+      .get("/v2/rooms/#{roomId}/messages")
       .reply 200, fixtures.room.messages.get
 
     robot = new RobotMock()
@@ -105,7 +105,7 @@ describe 'ChatworkStreaming', ->
 
   describe '#Me()', ->
     it 'should get own informations', (done) ->
-      api.get('/v1/me').reply 200, fixtures.me.get
+      api.get('/v2/me').reply 200, fixtures.me.get
       bot.Me (err, data) ->
         data.should.be.deep.equal fixtures.me.get
         done()
@@ -113,20 +113,20 @@ describe 'ChatworkStreaming', ->
   describe '#My()', ->
     describe '#status', ->
       it 'should get my status', (done) ->
-        api.get('/v1/my/status').reply 200, fixtures.my.status.get
+        api.get('/v2/my/status').reply 200, fixtures.my.status.get
         bot.My().status (err, data) ->
           data.should.be.deep.equal fixtures.my.status.get
           done()
 
     describe '#tasks()', ->
       it 'should get my tasks', (done) ->
-        api.get('/v1/my/tasks').reply 200, fixtures.my.tasks.get
+        api.get('/v2/my/tasks').reply 200, fixtures.my.tasks.get
         bot.My().tasks {}, (err, data) ->
           data.should.be.deep.equal fixtures.my.tasks.get
           done()
 
       it 'should get my tasks when no opts', (done) ->
-        api.get('/v1/my/tasks').reply 200, (url, body) ->
+        api.get('/v2/my/tasks').reply 200, (url, body) ->
           body.should.be.equal ""
           done()
         bot.My().tasks {}, null
@@ -135,7 +135,7 @@ describe 'ChatworkStreaming', ->
         opts =
           assignedBy: 78
           status: 'done'
-        api.get('/v1/my/tasks').reply 200, (url, body) ->
+        api.get('/v2/my/tasks').reply 200, (url, body) ->
           params = Helper.parseBody body
           params.should.be.deep.equal
             assigned_by_account_id: "#{opts.assignedBy}"
@@ -145,7 +145,7 @@ describe 'ChatworkStreaming', ->
 
   describe '#Contacts()', ->
     it 'should get contacts', (done) ->
-      api.get('/v1/contacts').reply 200, fixtures.contacts.get
+      api.get('/v2/contacts').reply 200, fixtures.contacts.get
       bot.Contacts (err, data) ->
         data.should.be.deep.equal fixtures.contacts.get
         done()
@@ -153,7 +153,7 @@ describe 'ChatworkStreaming', ->
   describe '#Rooms()', ->
     describe '#show()', ->
       it 'should show rooms', (done) ->
-        api.get('/v1/rooms').reply 200, fixtures.rooms.get
+        api.get('/v2/rooms').reply 200, fixtures.rooms.get
         bot.Rooms().show (err, data) ->
           data.should.be.deep.equal fixtures.rooms.get
           done()
@@ -162,7 +162,7 @@ describe 'ChatworkStreaming', ->
       it 'should create a room', (done) ->
         name = 'Website renewal project'
         adminIds = [123, 542, 1001]
-        api.post('/v1/rooms').reply 200, fixtures.rooms.post
+        api.post('/v2/rooms').reply 200, fixtures.rooms.post
         bot.Rooms().create name, adminIds, {}, (err, data) ->
           data.should.be.deep.equal fixtures.rooms.post
           done()
@@ -170,7 +170,7 @@ describe 'ChatworkStreaming', ->
       it 'should create a room when no opts', (done) ->
         name = 'Website renewal project'
         adminIds = [123, 542, 1001]
-        api.post('/v1/rooms').reply 200, (url, body) ->
+        api.post('/v2/rooms').reply 200, (url, body) ->
           body.should.be.equal "name=#{name}" \
             + "&members_admin_ids=#{adminIds.join ','}"
           done()
@@ -184,7 +184,7 @@ describe 'ChatworkStreaming', ->
           icon: 'meeting'
           memberIds: [21, 344]
           roIds: [15, 103]
-        api.post('/v1/rooms').reply 200, (url, body) ->
+        api.post('/v2/rooms').reply 200, (url, body) ->
           params = Helper.parseBody body
           params.should.be.deep.equal
             description:  opts.desc
@@ -198,7 +198,7 @@ describe 'ChatworkStreaming', ->
 
   describe '#Room()', ->
     room = null
-    baseUrl = "/v1/rooms/#{roomId}"
+    baseUrl = "/v2/rooms/#{roomId}"
 
     before ->
       room = bot.Room(roomId)
