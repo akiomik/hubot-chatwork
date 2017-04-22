@@ -171,8 +171,8 @@ describe 'ChatworkStreaming', ->
         name = 'Website renewal project'
         adminIds = [123, 542, 1001]
         api.post('/v2/rooms').reply 200, (url, body) ->
-          body.should.be.equal "name=#{name}" \
-            + "&members_admin_ids=#{adminIds.join ','}"
+          body.should.be.equal "name=#{encodeURIComponent name}" \
+            + "&members_admin_ids=#{encodeURIComponent adminIds.join ','}"
           done()
         bot.Rooms().create name, adminIds, {}, null
 
@@ -187,12 +187,12 @@ describe 'ChatworkStreaming', ->
         api.post('/v2/rooms').reply 200, (url, body) ->
           params = Helper.parseBody body
           params.should.be.deep.equal
-            description:  opts.desc
+            description:  encodeURIComponent opts.desc
             icon_preset: opts.icon
-            members_admin_ids: adminIds.join ','
-            members_member_ids: opts.memberIds.join ','
-            members_readonly_ids: opts.roIds.join ','
-            name: name
+            members_admin_ids: encodeURIComponent adminIds.join ','
+            members_member_ids: encodeURIComponent opts.memberIds.join ','
+            members_readonly_ids: encodeURIComponent opts.roIds.join ','
+            name: encodeURIComponent name
           done()
         bot.Rooms().create name, adminIds, opts, null
 
@@ -232,9 +232,9 @@ describe 'ChatworkStreaming', ->
         api.put(baseUrl).reply 200, (url, body) ->
           params = Helper.parseBody body
           params.should.be.deep.equal
-            description: opts.desc
+            description: encodeURIComponent opts.desc
             icon_preset: opts.icon
-            name: opts.name
+            name: encodeURIComponent opts.name
           done()
         room.update opts, null
 
@@ -277,7 +277,7 @@ describe 'ChatworkStreaming', ->
         it 'should update members when no opts', (done) ->
           adminIds = [123, 542, 1001]
           api.put("#{baseUrl}/members").reply 200, (url, body) ->
-            body.should.be.equal "members_admin_ids=#{adminIds.join ','}"
+            body.should.be.equal "members_admin_ids=#{encodeURIComponent adminIds.join ','}"
             done()
           room.Members().update adminIds, {}, null
 
@@ -290,9 +290,9 @@ describe 'ChatworkStreaming', ->
           api.put("#{baseUrl}/members").reply 200, (url, body) ->
             params = Helper.parseBody body
             params.should.be.deep.equal
-              members_admin_ids: adminIds.join ','
-              members_member_ids: opts.memberIds.join ','
-              members_readonly_ids: opts.roIds.join ','
+              members_admin_ids: encodeURIComponent adminIds.join ','
+              members_member_ids: encodeURIComponent opts.memberIds.join ','
+              members_readonly_ids: encodeURIComponent opts.roIds.join ','
             done()
           room.Members().update adminIds, opts, null
 
@@ -308,7 +308,7 @@ describe 'ChatworkStreaming', ->
         it 'should create a message', (done) ->
           message = 'This is a test message'
           api.post("#{baseUrl}/messages").reply 200, (url, body) ->
-            body.should.be.equal "body=#{message}"
+            body.should.be.equal "body=#{encodeURIComponent message}"
             fixtures.room.messages.post
 
           room.Messages().create message, (err, data) ->
@@ -371,7 +371,7 @@ describe 'ChatworkStreaming', ->
           text = "Buy milk"
           toIds = [1, 3, 6]
           api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
-            body.should.be.equal "body=#{text}&to_ids=#{toIds.join ','}"
+            body.should.be.equal "body=#{encodeURIComponent text}&to_ids=#{encodeURIComponent toIds.join ','}"
             done()
           room.Tasks().create text, toIds, {}, null
 
@@ -383,9 +383,9 @@ describe 'ChatworkStreaming', ->
           api.post("#{baseUrl}/tasks").reply 200, (url, body) ->
             params = Helper.parseBody body
             params.should.be.deep.equal
-              body: text
+              body: encodeURIComponent text
               limit: "#{opts.limit}"
-              to_ids: toIds.join ','
+              to_ids: encodeURIComponent toIds.join ','
             done()
           room.Tasks().create text, toIds, opts, null
 
