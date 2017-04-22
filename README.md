@@ -18,7 +18,7 @@ yo hubot --adapter chatwork
 2. Set environment variables.
   ```sh
 export HUBOT_CHATWORK_TOKEN="DEADBEEF" # see http://developer.chatwork.com/ja/authenticate.html
-export HUBOT_CHATWORK_ROOMS="123,456"   # comma separated
+export HUBOT_CHATWORK_ROOMS="123,456"   # comma separated. Set 0 to read all rooms
 export HUBOT_CHATWORK_API_RATE="350"   # request per hour
   ```
 
