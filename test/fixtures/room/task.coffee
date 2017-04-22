@@ -8,7 +8,7 @@ exports.get =
     account_id: 456
     name: "Anna"
     avatar_image_url: "https://example.com/def.png"
-  message_id: 13
+  message_id: "13"
   body: "buy milk"
   limit_time: 1384354799
   status: "open"

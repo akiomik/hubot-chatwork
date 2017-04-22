@@ -1,5 +1,5 @@
 exports.get = [
-  message_id: 5
+  message_id: "5"
   account:
     account_id: 123
     name: "Bob"
@@ -9,5 +9,5 @@ exports.get = [
   update_time: 0
 ]
 
-exports.post = message_id: 123
+exports.post = message_id: "123"
 
