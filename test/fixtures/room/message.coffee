@@ -1,5 +1,5 @@
 exports.get =
-  message_id: 5
+  message_id: "5"
   account:
     account_id: 123
     name: "Bob"
