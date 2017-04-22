@@ -236,10 +236,13 @@ class ChatworkStreaming extends EventEmitter
 
       response.on "error", (err) ->
         logger.error "Chatwork HTTPS response error: #{err}"
-        callback err, {}
+        if callback
+          callback err, {}
 
     request.end body, 'binary'
 
     request.on "error", (err) ->
       logger.error "Chatwork request error: #{err}"
+      if callback
+        callback err, {}
 
