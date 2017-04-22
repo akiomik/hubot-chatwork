@@ -208,7 +208,7 @@ class ChatworkStreaming extends EventEmitter
       "agent"  : false
       "host"   : @host
       "port"   : 443
-      "path"   : "/v1#{path}"
+      "path"   : "/v2#{path}"
       "method" : method
       "headers": headers
 
