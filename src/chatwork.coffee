@@ -15,7 +15,7 @@ class Chatwork extends Adapter
   # override
   reply: (envelope, strings...) ->
     @send envelope, strings.map((str) ->
-      "[To:#{envelope.user.id}] #{envelope.user.name}さん\n#{str}")...
+      "[rp aid=#{envelope.user.id} to=#{envelope.room}-#{envelope.message.id}] #{envelope.user.name}さん\n#{str}")...
 
   # override
   run: ->
